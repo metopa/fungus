@@ -11,7 +11,7 @@
   - String
   - Object
   - Array
-  - Vector
+  - Vector3
 - Internal types
   - Function
 
@@ -25,8 +25,8 @@
   - `struct`
 - Control flow
   - `if`
-  - `for`
   - `while`
+  - `for`
   - `break`
   - `continue`
   - `return`

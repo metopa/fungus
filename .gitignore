@@ -11,6 +11,5 @@ graalvm/
 .project
 /bin/
 /Coco.jar
-component/sl-component.jar
+component/fungus-component.jar
 language/dependency-reduced-pom.xml
-native/slnative
