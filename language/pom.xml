@@ -6,16 +6,24 @@
     <artifactId>fungus-parent</artifactId>
     <version>19.2.0-SNAPSHOT</version>
   </parent>
+  <properties>
+    <antlr4.visitor>true</antlr4.visitor>
+    <antlr4.listener>true</antlr4.listener>
+  </properties>
   <artifactId>funguslanguage</artifactId>
   <build>
     <plugins>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-eclipse-plugin</artifactId>
-        <configuration>
-          <downloadSources>true</downloadSources>
-          <downloadJavadocs>true</downloadJavadocs>
-        </configuration>
+        <groupId>org.antlr</groupId>
+        <artifactId>antlr4-maven-plugin</artifactId>
+        <version>4.7</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>antlr4</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>

@@ -20,7 +20,6 @@
 
 - Declaration
   - `func`
-  - `type`
   - `var`
   - `struct`
 - Control flow
@@ -48,7 +47,7 @@
   - `bool`
   - `int`
   - `float`
-  - `vec`
+  - `vec3`
 - Standard functions
   - `print`
   - `read`
@@ -59,6 +58,8 @@
   - `sqrt`
   - `rand`
   - `now`
+  - `halt`
+  - `assert`
     
   
 ## Code samples
