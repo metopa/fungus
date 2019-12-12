@@ -15,18 +15,13 @@ grammar Fungus;
 // TODO: @op support
 // TODO: array support
 
-/*
-Supported types:
-    -
-*/
-
 fungus:
     top_level_decl+ EOF
     ;
 
 top_level_decl:
-    func_decl   |
-    var_decl    |
+    func_decl    |
+    var_decl ';' |
     struct_decl
     ;
 
@@ -148,11 +143,11 @@ unop:
     ;
 
 value:
-    IDENTIFIER type_access |
-    STRING_LITERAL         |
-    FLOAT                  |
-    INT                    |
-    ('true' | 'false')
+    IDENTIFIER type_access      |
+    STRING_LITERAL              |
+    FLOAT                       |
+    INT                         |
+    ('true' | 'false' | 'null')
     ;
 
 type_access:
@@ -170,11 +165,10 @@ fragment LETTER : [A-Z] | [a-z] | '_' | '$';
 fragment DIGIT : [0-9];
 fragment HEX_DIGIT : [0-9] | [a-f] | [A-F];
 fragment EXPONENT : ('e'|'E') ('+'|'-')? ('0'..'9')+ ;
-fragment TAB : '\t';
 fragment STRING_CHAR : ~('"' | '\\' | '\r' | '\n');
 
 IDENTIFIER : LETTER (LETTER | DIGIT)*;
-STRING_LITERAL : '"' STRING_CHAR* '"';
+STRING_LITERAL : '"' (STRING_CHAR | '\\' . )* '"';
 INT: DIGIT+ | '0x' HEX_DIGIT+;
 FLOAT:
     ((DIGIT+ '.' DIGIT*) | ('.' DIGIT+)) EXPONENT? |

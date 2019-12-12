@@ -234,7 +234,7 @@ func main() {
 #### Return
 
 ```
-def foo(a) {
+func foo(a) {
   if (a > 5) {
     for (var i = a; a > 8; i = i + 1) {
       while (a > 10) {
@@ -387,14 +387,14 @@ func main() {
 ```
 
 ```
-struct Ray { origin, dir };
+struct Ray { origin, dir }
  
 struct Sphere {
   rad,
   pos,
   emission,
   color,
-  reflection,
+  reflection
 }
 
 func @dot(a, b) {
