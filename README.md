@@ -6,10 +6,9 @@
   - Boolean
   - Integer
   - Float
-  - null
 - Complex types
   - String
-  - Object
+  - Structure
   - Array
   - Vector3
 - Internal types
@@ -34,20 +33,28 @@
   - `==`, `!=`, `<`, `<=`, `=>`, `>`
   - `+`, `-`, `*`, `/`, `%`, `^`
   - `&&`, `||`, `!`
-  - `isinstanceof`
   - `@op`
 - Type access
   - `.`
   - `[]`
   - `()`
 - Special tokens
-  - `null`
   - `true`
   - `false`
   - `bool`
   - `int`
   - `float`
   - `vec3`
+  - `array<T>`
+  - `halt`
+  - `assert`
+  - `return`
+  - `break`
+  - `continue`
+  - `if`
+  - `for`
+  - `while`
+  
 - Standard functions
   - `print`
   - `read`
@@ -58,9 +65,18 @@
   - `sqrt`
   - `rand`
   - `now`
-  - `halt`
-  - `assert`
+  - `type`
     
+## Operator precedence
+- `.`, `()`, `[]`
+- `@op`
+- `^`
+- `*`, `/`, `%`
+- `+`, `-`   
+- `<`, `<=`, `==`, `!=`, `>=`, `>`
+- `&&`
+- `||`
+- `=`
   
 ## Code samples
 

@@ -3,10 +3,10 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>cz.metopa</groupId>
-    <artifactId>fungus-parent</artifactId>
+    <artifactId>fungus-main</artifactId>
     <version>19.2.0-SNAPSHOT</version>
   </parent>
-  <artifactId>launcher</artifactId>
+  <artifactId>fungus-launcher</artifactId>
   <build>
     <plugins>
       <plugin>
