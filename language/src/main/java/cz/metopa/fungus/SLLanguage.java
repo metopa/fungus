@@ -42,6 +42,7 @@ package cz.metopa.fungus;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -101,8 +102,8 @@ import cz.metopa.fungus.nodes.local.SLLexicalScope;
 import cz.metopa.fungus.nodes.local.SLReadLocalVariableNode;
 import cz.metopa.fungus.nodes.local.SLWriteLocalVariableNode;
 import cz.metopa.fungus.parser.SLNodeFactory;
-import cz.metopa.fungus.parser.SimpleLanguageLexer;
-import cz.metopa.fungus.parser.SimpleLanguageParser;
+import cz.metopa.fungus.parser.FungusLexer;
+import cz.metopa.fungus.parser.FungusParser;
 import cz.metopa.fungus.runtime.SLBigNumber;
 import cz.metopa.fungus.runtime.SLContext;
 import cz.metopa.fungus.runtime.SLFunction;
@@ -217,7 +218,7 @@ public final class SLLanguage extends TruffleLanguage<SLContext> {
          * the functions with the SLContext happens lazily in SLEvalRootNode.
          */
         if (request.getArgumentNames().isEmpty()) {
-            functions = SimpleLanguageParser.parseSL(this, source);
+            functions = FungusParser.parseLanguage(this, source);
         } else {
             Source requestedSource = request.getSource();
             StringBuilder sb = new StringBuilder();
@@ -233,7 +234,7 @@ public final class SLLanguage extends TruffleLanguage<SLContext> {
             sb.append(";}");
             String language = requestedSource.getLanguage() == null ? ID : requestedSource.getLanguage();
             Source decoratedSource = Source.newBuilder(language, sb.toString(), request.getSource().getName()).build();
-            functions = SimpleLanguageParser.parseSL(this, decoratedSource);
+            functions = FungusParser.parseLanguage(this, decoratedSource);
         }
 
         RootCallTarget main = functions.get("main");

@@ -2,6 +2,17 @@ grammar Fungus;
 
 @parser::header
 {
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import com.oracle.truffle.api.source.Source;
+import com.oracle.truffle.api.RootCallTarget;
+import cz.metopa.fungus.SLLanguage;
+import cz.metopa.fungus.nodes.SLExpressionNode;
+import cz.metopa.fungus.nodes.SLRootNode;
+import cz.metopa.fungus.nodes.SLStatementNode;
+import cz.metopa.fungus.parser.SLParseError;
 }
 
 @lexer::header
@@ -10,6 +21,45 @@ grammar Fungus;
 
 @parser::members
 {
+private SLNodeFactory factory;
+private Source source;
+
+private static final class BailoutErrorListener extends BaseErrorListener {
+    private final Source source;
+    BailoutErrorListener(Source source) {
+        this.source = source;
+    }
+    @Override
+    public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol, int line, int charPositionInLine, String msg, RecognitionException e) {
+        throwParseError(source, line, charPositionInLine, (Token) offendingSymbol, msg);
+    }
+}
+
+public void SemErr(Token token, String message) {
+    assert token != null;
+    throwParseError(source, token.getLine(), token.getCharPositionInLine(), token, message);
+}
+
+private static void throwParseError(Source source, int line, int charPositionInLine, Token token, String message) {
+    int col = charPositionInLine + 1;
+    String location = "-- line " + line + " col " + col + ": ";
+    int length = token == null ? 1 : Math.max(token.getStopIndex() - token.getStartIndex(), 0);
+    throw new SLParseError(source, line, col, length, String.format("Error(s) parsing script:%n" + location + message));
+}
+
+public static Map<String, RootCallTarget> parseLanguage(SLLanguage language, Source source) {
+    FungusLexer lexer = new FungusLexer(CharStreams.fromString(source.getCharacters().toString()));
+    FungusParser parser = new FungusParser(new CommonTokenStream(lexer));
+    lexer.removeErrorListeners();
+    parser.removeErrorListeners();
+    BailoutErrorListener listener = new BailoutErrorListener(source);
+    lexer.addErrorListener(listener);
+    parser.addErrorListener(listener);
+    parser.factory = new SLNodeFactory(language, source);
+    parser.source = source;
+    parser.fungus();
+    return parser.factory.getAllFunctions();
+}
 }
 
 // TODO: @op support
