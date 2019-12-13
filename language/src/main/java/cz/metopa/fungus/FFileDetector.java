@@ -1,6 +1,7 @@
 package cz.metopa.fungus;
 
 import com.oracle.truffle.api.TruffleFile;
+import com.oracle.truffle.sl.SLLanguage;
 
 import java.nio.charset.Charset;
 

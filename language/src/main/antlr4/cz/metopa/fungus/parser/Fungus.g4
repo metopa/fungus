@@ -8,11 +8,12 @@ import java.util.Map;
 
 import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.RootCallTarget;
-import cz.metopa.fungus.SLLanguage;
-import cz.metopa.fungus.nodes.SLExpressionNode;
-import cz.metopa.fungus.nodes.SLRootNode;
-import cz.metopa.fungus.nodes.SLStatementNode;
-import cz.metopa.fungus.parser.SLParseError;
+import com.oracle.truffle.sl.SLLanguage;
+import com.oracle.truffle.sl.nodes.SLExpressionNode;
+import com.oracle.truffle.sl.nodes.SLRootNode;
+import com.oracle.truffle.sl.nodes.SLStatementNode;
+import com.oracle.truffle.sl.parser.SLNodeFactory;
+import com.oracle.truffle.sl.parser.SLParseError;
 }
 
 @lexer::header
