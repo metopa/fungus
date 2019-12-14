@@ -210,4 +210,11 @@ public abstract class SLStatementNode extends Node implements InstrumentableNode
         }
     }
 
+    public int getStartIndex() {
+        return -1;
+    }
+
+    public int getStopIndex() {
+        return -1;
+    }
 }
