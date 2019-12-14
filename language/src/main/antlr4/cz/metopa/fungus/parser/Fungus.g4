@@ -12,8 +12,8 @@ import com.oracle.truffle.sl.SLLanguage;
 import com.oracle.truffle.sl.nodes.SLExpressionNode;
 import com.oracle.truffle.sl.nodes.SLRootNode;
 import com.oracle.truffle.sl.nodes.SLStatementNode;
-import com.oracle.truffle.sl.parser.SLNodeFactory;
 import com.oracle.truffle.sl.parser.SLParseError;
+import cz.metopa.fungus.parser.FNodeFactory;
 }
 
 @lexer::header
@@ -22,7 +22,7 @@ import com.oracle.truffle.sl.parser.SLParseError;
 
 @parser::members
 {
-private SLNodeFactory factory;
+private FNodeFactory factory;
 private Source source;
 
 private static final class BailoutErrorListener extends BaseErrorListener {
@@ -30,8 +30,12 @@ private static final class BailoutErrorListener extends BaseErrorListener {
     BailoutErrorListener(Source source) {
         this.source = source;
     }
+
     @Override
-    public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol, int line, int charPositionInLine, String msg, RecognitionException e) {
+    public void syntaxError(Recognizer<?, ?> recognizer,
+                            Object offendingSymbol,
+                            int line, int charPositionInLine,
+                            String msg, RecognitionException e) {
         throwParseError(source, line, charPositionInLine, (Token) offendingSymbol, msg);
     }
 }
@@ -56,7 +60,7 @@ public static Map<String, RootCallTarget> parseLanguage(SLLanguage language, Sou
     BailoutErrorListener listener = new BailoutErrorListener(source);
     lexer.addErrorListener(listener);
     parser.addErrorListener(listener);
-    parser.factory = new SLNodeFactory(language, source);
+    parser.factory = new FNodeFactory(language, source);
     parser.source = source;
     parser.fungus();
     return parser.factory.getAllFunctions();
@@ -71,141 +75,228 @@ fungus:
     ;
 
 top_level_decl:
-    func_decl    |
-    var_decl ';' |
+    func_decl       |
+    global_var_decl |
     struct_decl
     ;
 
-var_decl:
-    'var' IDENTIFIER '=' expr ;
+global_var_decl:
+    s='var' IDENT '=' expr e=';'
+                               { factory.addGlobalVariable($IDENT, $expr.result,
+                                                           $s.getStartIndex(),
+                                                           $e.getStopIndex());      }
+    ;
 
 struct_decl:
-    'struct' IDENTIFIER '{'
+    s='struct' IDENT '{'
         ident_list
-    '}'
+    e='}'                      { factory.declareStructure($IDENT, $ident_list.result,
+                                                          $s.getStartIndex(), $e.getStopIndex()); }
     ;
 
 func_decl:
-    'func' IDENTIFIER
-    '(' opt_ident_list ')'
-    block[false]
+    s='func' IDENT
+    '(' opt_ident_list ')'     { factory.startFunction($IDENT,
+                                                       $opt_ident_list.result,
+                                                       $s.getStartIndex()); }
+    block[false]               { factory.finishFunction($block.result, $block.result.getStopIndex()); }
     ;
 
-ident_list:
-    IDENTIFIER (',' IDENTIFIER)*
+ident_list returns [List<Token> result]:
+                               { $result = new ArrayList<>(); }
+    IDENT                      { $result.add($IDENT); }
+    (',' IDENT                 { $result.add($IDENT); } )*
     ;
 
-opt_ident_list:
-    ident_list |
-    /* epsilon */
+opt_ident_list returns [List<Token> result]:
+    ident_list    { $result = $ident_list.result; } |
+    /* epsilon */ { $result = new ArrayList<>();  }
     ;
 
-block [boolean inLoop]:
-    '{' stmt[inLoop]* '}'
+block [boolean inLoop] returns [SLStatementNode result]
+locals [List<SLStatementNode> body = new ArrayList<>()]:
+    s='{'                      { factory.startBlock();   }
+    (stmt[$inLoop]             { $body.add($stmt.result); })*
+    e='}'                      { $result = factory.finishBlock($body,
+                                                               $s.getStartIndex(),
+                                                               $e.getStopIndex()); }
     ;
 
-stmt[boolean inLoop]:
-    block[inLoop]         |
-    if_block[inLoop]      |
-    while_block           |
-    for_block             |
-    line_stmt[inLoop] ';'
+stmt[boolean inLoop] returns [SLStatementNode result]:
+    block[$inLoop]             { $result = $block.result;         } |
+    if_block[$inLoop]          { $result = $if_block.result;      } |
+    while_block                { $result = $while_block.result;   } |
+    for_block                  { $result = $for_block.result;     } |
+    return_stmt                { $result = $return_stmt.result;   } |
+    assert_stmt                { $result = $assert_stmt.result;   } |
+    debugger_stmt              { $result = $debugger_stmt.result; } |
+    {$inLoop}? break_stmt      { $result = $break_stmt.result;    } |
+    {$inLoop}? continue_stmt   { $result = $continue_stmt.result; } |
+    var_decl e=';'             { $result = factory.withLocation(
+                                               $var_decl.result,
+                                               $var_decl.result.getStartIndex(),
+                                               $e.getStopIndex());                } |
+    expr e=';'                 { $result = factory.withLocation(
+                                               $expr.result,
+                                               $expr.result.getStartIndex(),
+                                               $e.getStopIndex());                }
     ;
 
-line_stmt[boolean inLoop]:
-    var_decl                 |
-    return_stmt              |
-    assert_stmt              |
-    debugger_stmt            |
-    {$inLoop}? break_stmt    |
-    {$inLoop}? continue_stmt |
-    expr
+if_block[boolean inLoop] returns [SLStatementNode result]
+locals [SLExpressionNode condition,
+        SLStatementNode  thenBranch,
+        SLStatementNode  elseBranch]:
+    s='if' '(' expr ')'        { $condition = $expr.result;   }
+    block[$inLoop]             { $thenBranch = $block.result; }
+    ('else' block[$inLoop]     { $elseBranch = $block.result; })?
+                               { $result = factory.createIf($condition, $thenBranch,
+                                                            $elseBranch, $s.getStartIndex());}
     ;
 
-if_block[boolean inLoop]:
-    'if' '(' condition=expr ')'
-      thenBranch=block[inLoop]
-      ('else' elseBranch=block[inLoop])?
+while_block returns [SLStatementNode result]:
+    s='while' '(' condition=expr ')'
+    body=block[true]           { $result = factory.createWhile($condition.result,
+                                                               $body.result,
+                                                               $s.getStartIndex(),
+                                                               $body.result.getStopIndex()); }
     ;
 
-while_block:
-    'while' '(' condition=expr ')'
-        body=block[true]
+for_block returns [SLStatementNode result]
+locals [SLStatementNode  prologue,
+        SLExpressionNode condition,
+        SLExpressionNode postIter]:
+    s='for' '(' (for_prologue  { $prologue = $for_prologue.result; })? ';'
+              (expr            { $condition = $expr.result;        })? ';'
+              (expr            { $postIter = $expr.result;         })?
+          ')'
+        body=block[true]       { $result = factory.createFor($prologue, $condition,
+                                                             $postIter, $body.result,
+                                                             $s.getStartIndex(),
+                                                             $body.result.getStopIndex()); }
     ;
 
-for_block:
-    'for' '(' for_prologue? ';' (condition=expr)? ';' (postIter=expr)? ')'
-        body=block[true]
+for_prologue returns [SLStatementNode result]:
+    var_decl                   { $result = $var_decl.result; } |
+    expr                       { $result = $expr.result;     }
     ;
 
-for_prologue:
-    var_decl |
-    expr
+var_decl returns [SLStatementNode result]:
+    s='var' IDENT '=' expr     { $result = factory.declareVariable($IDENT, $expr.result,
+                                                                   $s.getStartIndex(),
+                                                                   $expr.result.getStopIndex()); }
     ;
 
-return_stmt:
-    'return' expr
+return_stmt returns [SLStatementNode result]
+locals [SLExpressionNode retval]:
+    s='return' (expr           { $retval = $expr.result; })? e=';'
+                               { $result = factory.createReturn($retval,
+                                                                $s.getStartIndex(),
+                                                                $e.getStopIndex()); }
     ;
 
-assert_stmt:
-    'assert' expr
+assert_stmt returns [SLStatementNode result]:
+    s='assert' '(' expr ')' e=';'
+                               { $result = factory.createAssert($expr.result,
+                                                                $s.getStartIndex(),
+                                                                $e.getStopIndex()); }
     ;
 
-debugger_stmt:
-    'halt'
+debugger_stmt returns [SLStatementNode result]:
+    s='halt' e=';'             { $result = factory.createDebuggerStop($s.getStartIndex(),
+                                                                      $e.getStopIndex()); }
     ;
 
-break_stmt:
-    'break'
+break_stmt returns [SLStatementNode result]:
+    s='break' e=';'            { $result = factory.createBreak($s.getStartIndex(),
+                                                               $e.getStopIndex()); }
     ;
 
-continue_stmt:
-    'continue'
+continue_stmt returns [SLStatementNode result]:
+    s='continue' e=';'         { $result = factory.createContinue($s.getStartIndex(),
+                                                                  $e.getStopIndex()); }
     ;
 
-expr:
+expr returns [SLExpressionNode result]:
     // parenthesis
-    '(' expr ')'                                      |
+    s='(' expr e=')'           { $result = factory.withLocation($expr.result,
+                                                                $s.getStartIndex(),
+                                                                $e.getStopIndex()); } |
     // value access
-    unop                                              |
+    unop                       { $result = $unop.result; }                               |
     // user-defined binop
-    // expr @op expr                                  |
+    // expr @op expr                                                                     |
     // power
-    <assoc=right>expr '^' expr                        |
+    <assoc=right>lhs=expr op='^' rhs=expr
+                               { $result = factory.createBinOp($op.getText(),
+                                                               $lhs.result, $rhs.result); }   |
     // multiplication
-    expr ('*' | '/' | '%') expr                       |
+    lhs=expr op=('*' | '/' | '%') rhs=expr
+                               { $result = factory.createBinOp($op.getText(),
+                                                               $lhs.result, $rhs.result); }   |
     // addition
-    expr ('+' | '-') expr                             |
+    lhs=expr op=('+' | '-') rhs=expr
+                               { $result = factory.createBinOp($op.getText(),
+                                                               $lhs.result, $rhs.result); }   |
     // comparison
-    expr ('<' | '<=' | '==' | '!=' | '>=' | '>') expr |
+    lhs=expr op=('<' | '<=' | '==' | '!=' | '>=' | '>') rhs=expr
+                               { $result = factory.createBinOp($op.getText(),
+                                                               $lhs.result, $rhs.result); }   |
     // AND
-    expr '&&' expr                                    |
+    lhs=expr op='&&' rhs=expr
+                               { $result = factory.createBinOp($op.getText(),
+                                                               $lhs.result, $rhs.result); }   |
     // OR
-    expr '||' expr                                    |
+    lhs=expr op='||' rhs=expr
+                               { $result = factory.createBinOp($op.getText(),
+                                                               $lhs.result, $rhs.result); }   |
     // assignment
-    <assoc=right>expr '=' expr
+    <assoc=right>lhs=expr op='=' rhs=expr
+                               { $result = factory.createBinOp($op.getText(),
+                                                               $lhs.result, $rhs.result); }
     ;
 
-unop:
-    '-' unop |
-    '+' unop |
-    '!' unop |
-    value
+unop returns [SLExpressionNode result]:
+    op=('-' | '+' | '!') unop  { $result = factory.createUnOp($op.getText(), $unop.result,
+                                                              $op.getStartIndex(),
+                                                              $unop.result.getStopIndex()); }  |
+    value                      { $result = $value.result; }
     ;
 
-value:
-    IDENTIFIER type_access      |
-    STRING_LITERAL              |
-    FLOAT                       |
-    INT                         |
-    ('true' | 'false' | 'null')
+value returns [SLExpressionNode result]
+locals [SLExpressionNode readOp]:
+    IDENT '(' func_call_arguments e=')'
+                               { $result = factory.createCall($IDENT.getText(),
+                                                              $func_call_arguments.result,
+                                                              $IDENT.getStartIndex(),
+                                                              $e.getStopIndex());           } |
+    IDENT                      { $readOp = factory.createRead($IDENT.getText(),
+                                                              $IDENT.getStartIndex(),
+                                                              $IDENT.getStopIndex());       }
+      type_access[$readOp]     { $result = $type_access.result;                             } |
+    STRING_LITERAL             { $result = factory.createStringLiteral($STRING_LITERAL);    } |
+    FLOAT_LITERAL              { $result = factory.createFloatLiteral($FLOAT_LITERAL);      } |
+    INT_LITERAL                { $result = factory.createIntLiteral($INT_LITERAL);          } |
+    t=('true' | 'false')       { $result = factory.createBoolLiteral($t);                   } |
+    t='null'                   { $result = factory.createNullLiteral($t);                   }
     ;
 
-type_access:
-    '(' (expr (',' expr)*)? ')' type_access |
-    '[' expr ']' type_access                |
-    '.' IDENTIFIER type_access              |
-    /* epsilon */
+func_call_arguments returns [List<SLExpressionNode> result]:
+                               { $result = new ArrayList<>(); }
+    (expr                      { $result.add($expr.result);   }
+      (',' expr                { $result.add($expr.result);   })*
+    )?
+    ;
+
+type_access[SLExpressionNode lhs] returns [SLExpressionNode result]:
+    '[' expr e=']'             { $lhs = factory.createArrayAccess($lhs, $expr.result,
+                                                                  $lhs.getStartIndex(),
+                                                                  $e.getStopIndex());   }
+      type_access[$lhs]        { $result = $type_access.result; }                             |
+    '.' IDENT                  { $lhs = factory.createMemberAccess($lhs, $IDENT.getText(),
+                                                                   $lhs.getStartIndex(),
+                                                                   $IDENT.getStopIndex()); }
+      type_access[lhs]         { $result = $type_access.result; }                             |
+    /* epsilon */              { $result = $lhs; }
     ;
 
 WS : [ \t\r\n\u000C]+ -> skip;
@@ -218,10 +309,10 @@ fragment HEX_DIGIT : [0-9] | [a-f] | [A-F];
 fragment EXPONENT : ('e'|'E') ('+'|'-')? ('0'..'9')+ ;
 fragment STRING_CHAR : ~('"' | '\\' | '\r' | '\n');
 
-IDENTIFIER : LETTER (LETTER | DIGIT)*;
+IDENT : LETTER (LETTER | DIGIT)*;
 STRING_LITERAL : '"' (STRING_CHAR | '\\' . )* '"';
-INT: DIGIT+ | '0x' HEX_DIGIT+;
-FLOAT:
+INT_LITERAL: DIGIT+ | '0x' HEX_DIGIT+;
+FLOAT_LITERAL:
     ((DIGIT+ '.' DIGIT*) | ('.' DIGIT+)) EXPONENT? |
     DIGIT+ EXPONENT
     ;
