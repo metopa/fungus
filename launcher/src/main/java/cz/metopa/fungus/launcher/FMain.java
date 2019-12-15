@@ -40,104 +40,100 @@
  */
 package cz.metopa.fungus.launcher;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.PrintStream;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.PolyglotException;
 import org.graalvm.polyglot.Source;
 import org.graalvm.polyglot.Value;
 
+import java.io.*;
+import java.util.HashMap;
+import java.util.Map;
+
 public final class FMain {
 
   private static final String LANGUAGE_ID = "sl";
 
-  /**
-   * The main entry point.
-   */
-  public static void main(String[] args) throws IOException {
-    Source source;
-    Map<String, String> options = new HashMap<>();
-    String file = null;
-    for (String arg : args) {
-      if (parseOption(options, arg)) {
-        continue;
-      } else {
-        if (file == null) {
-          file = arg;
+    /**
+     * The main entry point.
+     */
+    public static void main(String[] args) throws IOException {
+        Source source;
+        Map<String, String> options = new HashMap<>();
+        String file = null;
+        for (String arg : args) {
+            if (parseOption(options, arg)) {
+                continue;
+            } else {
+                if (file == null) {
+                    file = arg;
+                }
+            }
         }
-      }
+
+        if (file == null) {
+            source = Source.newBuilder(LANGUAGE_ID, new InputStreamReader(System.in), "<stdin>").build();
+        } else {
+            source = Source.newBuilder(LANGUAGE_ID, new File(file)).build();
+        }
+
+        System.exit(executeSource(source, System.in, System.out, options));
     }
 
-    if (file == null) {
-      source = Source.newBuilder(LANGUAGE_ID, new InputStreamReader(System.in), "<stdin>").build();
-    } else {
-      source = Source.newBuilder(LANGUAGE_ID, new File(file)).build();
+    private static int executeSource(Source source, InputStream in, PrintStream out, Map<String, String> options) {
+        Context context;
+        PrintStream err = System.err;
+        try {
+            context = Context.newBuilder(LANGUAGE_ID).in(in).out(out).options(options).build();
+        } catch (IllegalArgumentException e) {
+            err.println(e.getMessage());
+            return 1;
+        }
+        out.println("== current engine: " + context.getEngine());
+
+        try {
+            Value result = context.eval(source);
+            if (context.getBindings(LANGUAGE_ID).getMember("main") == null) {
+                err.println("No function main() defined in Fungus source file.");
+                return 1;
+            }
+            if (!result.isNull()) {
+                out.println(result.toString());
+            }
+            return 0;
+        } catch (PolyglotException ex) {
+            if (ex.isInternalError()) {
+                // for internal errors we print the full stack trace
+                ex.printStackTrace();
+            } else {
+                err.println(ex.getMessage());
+            }
+            return 1;
+        } finally {
+            context.close();
+        }
     }
 
-    System.exit(executeSource(source, System.in, System.out, options));
-  }
+    private static boolean parseOption(Map<String, String> options, String arg) {
+        if (arg.length() <= 2 || !arg.startsWith("--")) {
+            return false;
+        }
 
-  private static int executeSource(Source source, InputStream in, PrintStream out, Map<String, String> options) {
-    Context context;
-    PrintStream err = System.err;
-    try {
-      context = Context.newBuilder(LANGUAGE_ID).in(in).out(out).options(options).build();
-    } catch (IllegalArgumentException e) {
-      err.println(e.getMessage());
-      return 1;
-    }
-    out.println("== current engine: " + context.getEngine());
+        int eqIdx = arg.indexOf('=');
+        String key;
+        String value;
+        if (eqIdx < 0) {
+            key = arg.substring(2);
+            value = null;
+        } else {
+            key = arg.substring(2, eqIdx);
+            value = arg.substring(eqIdx + 1);
+        }
 
-    try {
-      Value result = context.eval(source);
-      if (context.getBindings(LANGUAGE_ID).getMember("main") == null) {
-        err.println("No function main() defined in Fungus source file.");
-        return 1;
-      }
-      if (!result.isNull()) {
-        out.println(result.toString());
-      }
-      return 0;
-    } catch (PolyglotException ex) {
-      if (ex.isInternalError()) {
-        // for internal errors we print the full stack trace
-        ex.printStackTrace();
-      } else {
-        err.println(ex.getMessage());
-      }
-      return 1;
-    } finally {
-      context.close();
+        if (value == null) {
+            value = "true";
+        }
+        options.put(key, value);
+        return true;
     }
-  }
-
-  private static boolean parseOption(Map<String, String> options, String arg) {
-    if (arg.length() <= 2 || !arg.startsWith("--")) {
-      return false;
-    }
-
-    int eqIdx = arg.indexOf('=');
-    String key;
-    String value;
-    if (eqIdx < 0) {
-      key = arg.substring(2);
-      value = null;
-    } else {
-      key = arg.substring(2, eqIdx);
-      value = arg.substring(eqIdx + 1);
-    }
-
-    if (value == null) {
-      value = "true";
-    }
-    options.put(key, value);
-    return true;
-  }
 
 }

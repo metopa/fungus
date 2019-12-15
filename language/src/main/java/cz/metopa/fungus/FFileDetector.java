@@ -7,17 +7,17 @@ import java.nio.charset.Charset;
 
 public final class FFileDetector implements TruffleFile.FileTypeDetector {
 
-  @Override
-  public String findMimeType(TruffleFile file) {
-    String name = file.getName();
-    if (name != null && name.endsWith(".fun")) {
-      return SLLanguage.MIME_TYPE;
+    @Override
+    public String findMimeType(TruffleFile file) {
+        String name = file.getName();
+        if (name != null && name.endsWith(".fun")) {
+            return SLLanguage.MIME_TYPE;
+        }
+        return null;
     }
-    return null;
-  }
 
-  @Override
-  public Charset findEncoding(TruffleFile file) {
-    return null;
-  }
+    @Override
+    public Charset findEncoding(TruffleFile file) {
+        return null;
+    }
 }
