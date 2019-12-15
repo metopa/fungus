@@ -2,7 +2,7 @@
 
 VERSION="19.2.0"
 
-MAIN_CLASS="cz.metopa.fungus.launcher.SLMain"
+MAIN_CLASS="cz.metopa.fungus.launcher.FMain"
 SCRIPT_HOME="$(cd "$(dirname "$0")" && pwd -P)"
 
 #######################################################################
@@ -20,7 +20,7 @@ if [[ "$GRAALVM_VERSION" != "" ]]; then
         exit 1
     fi
 else
-    LANGUAGE_PATH="$SCRIPT_HOME/language/target/funguslanguage.jar"
+    LANGUAGE_PATH="$SCRIPT_HOME/language/target/fungus-language.jar"
     LAUNCHER_PATH="$SCRIPT_HOME/launcher/target/fungus-launcher.jar"
     # Check the GraalVM version in JAVA_HOME
     if [[ "$JAVA_HOME" != "" ]]; then

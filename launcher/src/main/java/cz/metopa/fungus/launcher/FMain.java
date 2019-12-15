@@ -55,7 +55,7 @@ import org.graalvm.polyglot.Value;
 
 public final class FMain {
 
-  private static final String LANGUAGE_ID = "fungus";
+  private static final String LANGUAGE_ID = "sl";
 
   /**
    * The main entry point.

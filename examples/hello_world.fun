@@ -6,5 +6,5 @@
    - builtin print function
 */
 func main() {
-    print("Hello, world");
+    println("Hello, world");
 }

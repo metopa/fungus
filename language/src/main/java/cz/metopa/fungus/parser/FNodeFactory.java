@@ -125,9 +125,8 @@ public class FNodeFactory {
     // TODO: get source section from body node
     final SLRootNode rootNode = new SLRootNode(language, currentScope.getFrameDescriptor(),
                                                funcBodyNode, funcBodyNode.getSourceSection(), name);
+
     allFunctions.put(name, Truffle.getRuntime().createCallTarget(rootNode));
-
-
   }
 
   public void startBlock() {
