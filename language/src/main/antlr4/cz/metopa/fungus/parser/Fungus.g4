@@ -100,8 +100,8 @@ struct_decl:
 
 func_decl:
     s='func' IDENT
-    '(' opt_ident_list ')'     { factory.startFunction($IDENT.getText(), $opt_ident_list.result); }
-    block[false]               { factory.finishFunction($block.result, $s.getStartIndex(), $block.result.getStopIndex()); }
+    '(' opt_ident_list ')'     { factory.startFunction($opt_ident_list.result); }
+    block[false]               { factory.finishFunction($IDENT.getText(), $block.result, $s.getStartIndex(), $block.result.getStopIndex()); }
     ;
 
 ident_list returns [List<Token> result]:
@@ -115,11 +115,10 @@ opt_ident_list returns [List<Token> result]:
     /* epsilon */ { $result = new ArrayList<>();  }
     ;
 
-block [boolean inLoop] returns [SLBlockNode result]
-locals [List<SLStatementNode> body = new ArrayList<>()]:
+block [boolean inLoop] returns [SLBlockNode result]:
     s='{'                      { factory.startBlock(); }
-    (stmt[$inLoop]             { $body.add($stmt.result); })*
-    e='}'                      { $result = factory.finishBlock($body, $s.getStartIndex(), $e.getStopIndex()); }
+    (stmt[$inLoop]             { factory.addStatement($stmt.result); })*
+    e='}'                      { $result = factory.finishBlock($s.getStartIndex(), $e.getStopIndex()); }
     ;
 
 stmt[boolean inLoop] returns [SLStatementNode result]:
@@ -233,12 +232,12 @@ locals [SLExpressionNode readOp]:
     IDENT '(' func_call_arguments e=')'
                                { $result = factory.createCall($IDENT.getText(), $func_call_arguments.result, $IDENT.getStartIndex(), $e.getStopIndex()); } |
     IDENT                      { $readOp = factory.createRead($IDENT.getText(), $IDENT.getStartIndex(), $IDENT.getStopIndex()); }
-      type_access[$readOp]     { $result = $type_access.result;                          } |
-    STRING_LITERAL             { $result = factory.createStringLiteral($STRING_LITERAL); } |
-    FLOAT_LITERAL              { $result = factory.createFloatLiteral($FLOAT_LITERAL);   } |
-    INT_LITERAL                { $result = factory.createIntLiteral($INT_LITERAL);       } |
-    t=('true' | 'false')       { $result = factory.createBoolLiteral($t);                } |
-    t='null'                   { $result = factory.createNullLiteral($t);                }
+      type_access[$readOp]     { $result = $type_access.result;                                } |
+    STRING_LITERAL             { $result = factory.createStringLiteral($STRING_LITERAL, true); } |
+    FLOAT_LITERAL              { $result = factory.createFloatLiteral($FLOAT_LITERAL);         } |
+    INT_LITERAL                { $result = factory.createIntLiteral($INT_LITERAL);             } |
+    t=('true' | 'false')       { $result = factory.createBoolLiteral($t);                      } |
+    t='null'                   { $result = factory.createNullLiteral($t);                      }
     ;
 
 func_call_arguments returns [List<SLExpressionNode> result]:
