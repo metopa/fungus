@@ -5,7 +5,9 @@ import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.TruffleLanguage.ContextPolicy;
 import com.oracle.truffle.api.source.Source;
+import cz.metopa.fungus.parser.FungusParser;
 import cz.metopa.fungus.runtime.FContext;
+import cz.metopa.fungus.runtime.FFunction;
 
 import java.util.Map;
 
@@ -28,13 +30,17 @@ public final class FLanguage extends TruffleLanguage<FContext> {
     @Override
     protected CallTarget parse(ParsingRequest request) throws Exception {
         Source source = request.getSource();
-        Map<String, RootCallTarget> functions = null; //FungusParser.parseLanguage(this, source);
-        RootCallTarget main = functions.get("main");
+        FContext ctx = getContextReference().get();
+
+        Map<String, FFunction> functions = FungusParser.parseLanguage(this, source);
+        functions.forEach((name, func) -> ctx.registerFunction(func));
+
+        FFunction main = functions.get("main");
         if (main == null) {
             throw new RuntimeException("Missing main function");
         }
 
-        return null;
+        return main.getCallTarget();
     }
 
     @Override

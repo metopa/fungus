@@ -1,18 +1,19 @@
 package cz.metopa.fungus.parser;
 
-import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.FrameSlot;
 import com.oracle.truffle.api.source.Source;
-import com.oracle.truffle.sl.SLLanguage;
-import com.oracle.truffle.sl.nodes.SLExpressionNode;
-import com.oracle.truffle.sl.nodes.SLRootNode;
-import com.oracle.truffle.sl.nodes.SLStatementNode;
-import com.oracle.truffle.sl.nodes.controlflow.*;
-import com.oracle.truffle.sl.nodes.expression.SLFunctionLiteralNode;
-import com.oracle.truffle.sl.nodes.expression.SLInvokeNode;
-import com.oracle.truffle.sl.nodes.expression.SLStringLiteralNode;
+import cz.metopa.fungus.FLanguage;
+import cz.metopa.fungus.nodes.FExpressionNode;
+import cz.metopa.fungus.nodes.FRootNode;
+import cz.metopa.fungus.nodes.FStatementNode;
+import cz.metopa.fungus.nodes.controlflow.FBlockNode;
+import cz.metopa.fungus.nodes.controlflow.FFunctionBodyNode;
+import cz.metopa.fungus.nodes.controlflow.FInvokeNode;
+import cz.metopa.fungus.nodes.expression.*;
+import cz.metopa.fungus.nodes.expression.constants.*;
+import cz.metopa.fungus.runtime.FFunction;
 import org.antlr.v4.runtime.Token;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
@@ -22,26 +23,23 @@ import java.util.List;
 import java.util.Map;
 
 public class FNodeFactory {
-
-
     private static class LexicalScope {
         private final LexicalScope parent;
-        private final FrameDescriptor slots;
-        private final List<SLStatementNode> statements;
+        private final Map<String, FrameSlot> slots;
+        private final List<FStatementNode> statements;
+        private final FrameDescriptor descriptor;
 
-        public LexicalScope(LexicalScope parent) {
+        public LexicalScope(LexicalScope parent, FrameDescriptor descriptor) {
             this.parent = parent;
-            this.slots = new FrameDescriptor();
+            this.slots = new HashMap<>();
             this.statements = new ArrayList<>();
+            this.descriptor = descriptor;
         }
 
         public FrameSlot resolveSlot(String name) throws RuntimeException {
-            FrameSlot slot = slots.findFrameSlot(name);
+            FrameSlot slot = descriptor.findFrameSlot(name);
             if (slot != null) {
                 return slot;
-            }
-            if (parent != null) {
-                return parent.resolveSlot(name);
             }
 
             throw new RuntimeException("Unknown variable name: " + name);
@@ -49,17 +47,19 @@ public class FNodeFactory {
 
         public FrameSlot addSlot(String name) throws RuntimeException {
             try {
-                return slots.addFrameSlot(name);
+                FrameSlot slot = descriptor.addFrameSlot(name);
+                slots.put(name, slot);
+                return slot;
             } catch (IllegalArgumentException e) {
                 throw new RuntimeException("Name redefinition error: " + name);
             }
         }
 
-        public void addStatement(SLStatementNode stmt) {
+        public void addStatement(FStatementNode stmt) {
             statements.add(stmt);
         }
 
-        public List<SLStatementNode> getStatements() {
+        public List<FStatementNode> getStatements() {
             return statements;
         }
 
@@ -67,24 +67,27 @@ public class FNodeFactory {
             return parent;
         }
 
+        public LexicalScope createChild() {
+            return new LexicalScope(this, descriptor);
+        }
+
         public FrameDescriptor getFrameDescriptor() {
-            return slots;
+            return descriptor;
         }
     }
 
     private final Source source;
-    private final SLLanguage language;
-    private final Map<String, RootCallTarget> allFunctions;
+    private final FLanguage language;
+    private final Map<String, FFunction> allFunctions;
     private LexicalScope currentScope;
 
-    public FNodeFactory(SLLanguage language, Source source) {
+    public FNodeFactory(FLanguage language, Source source) {
         this.language = language;
         this.source = source;
         this.allFunctions = new HashMap<>();
-        this.currentScope = new LexicalScope(null);
     }
 
-    public Map<String, RootCallTarget> getAllFunctions() {
+    public Map<String, FFunction> getAllFunctions() {
         return allFunctions;
     }
 
@@ -92,128 +95,149 @@ public class FNodeFactory {
         throw new NotImplementedException();
     }
 
-    public void addGlobalVariable(String name, SLExpressionNode initialValue, int startIndex, int stopIndex) {
+    public void addGlobalVariable(String name, FExpressionNode initialValue, int startIndex, int stopIndex) {
         throw new NotImplementedException();
     }
 
     public void startFunction(List<Token> parameters) {
+        currentScope = new LexicalScope(null, new FrameDescriptor());
         startBlock();
-        if (!parameters.isEmpty()) {
-            throw new RuntimeException("Function parameters are not supported yet");
+
+        for (int i = 0; i < parameters.size(); i++) {
+            FReadArgumentNode readArg = new FReadArgumentNode(i);
+            FStatementNode assignment = declareVariable(parameters.get(i).getText(), readArg, -1, -1);
+            currentScope.addStatement(assignment);
         }
     }
 
-    public void finishFunction(String name, SLBlockNode body, int startIndex, int stopIndex) {
+    /**
+     * Declaration creates FFunction: {name, callTarget} -> save to registry. On load gets callTarget
+     * Invoke creates FInvokeNode: {name, arguments} -> on execute: lookup function in context, cache it.
+     * run DirectCall()
+     * Builtin: pass custom FStatement + FrameDescriptor
+     */
+    public void finishFunction(String name, FStatementNode body, int startIndex, int stopIndex) {
         currentScope.addStatement(body);
-        LexicalScope funcRootScope = currentScope;
-        SLBlockNode funcRootBlock = finishBlock(startIndex, stopIndex);
+        FBlockNode funcRootBlock = finishBlock(startIndex, stopIndex);
+
         assert currentScope.getParent() == null : "Wrong scoping of blocks in parser";
 
-        final SLFunctionBodyNode funcBodyNode = new SLFunctionBodyNode(funcRootBlock);
+        final FFunctionBodyNode funcBodyNode = new FFunctionBodyNode(funcRootBlock);
         funcBodyNode.setSourceSection(startIndex, stopIndex);
+        registerFunction(name, funcBodyNode, currentScope.getFrameDescriptor());
+        currentScope = null;
+    }
 
-        // TODO: get source section from body node
-        final SLRootNode rootNode = new SLRootNode(language, currentScope.getFrameDescriptor(), funcBodyNode,
-                funcBodyNode.getSourceSection(), name);
+    public void registerFunction(String name, FExpressionNode rootStatement, FrameDescriptor frameDescriptor) {
+        final FRootNode rootNode = new FRootNode(language, frameDescriptor, rootStatement, name);
+        if (allFunctions.containsKey(name)) {
+            throw new RuntimeException("Function redefinition error: " + name);
+        }
+        allFunctions.put(name, new FFunction(name, Truffle.getRuntime().createCallTarget(rootNode)));
+    }
 
-        allFunctions.put(name, Truffle.getRuntime().createCallTarget(rootNode));
+    public void registerBuiltin(String name, List<String> parameters, FStatementNode impl) {
+        startFunction(new ArrayList<>()); // TODO real parameters
+        finishFunction(name, impl, -1, -1);
     }
 
     public void startBlock() {
         assert currentScope != null;
-        currentScope = new LexicalScope(currentScope);
+        currentScope = currentScope.createChild();
     }
 
-    public SLBlockNode finishBlock(int startIndex, int stopIndex) {
-        SLStatementNode[] statements = currentScope.getStatements().toArray(new SLStatementNode[0]);
-        SLBlockNode blockNode = new SLBlockNode(statements);
+    public FBlockNode finishBlock(int startIndex, int stopIndex) {
+        FStatementNode[] statements = currentScope.getStatements().toArray(new FStatementNode[0]);
+        FBlockNode blockNode = new FBlockNode(statements);
         blockNode.setSourceSection(startIndex, calculateLength(startIndex, stopIndex));
 
         currentScope = currentScope.getParent();
         return blockNode;
     }
 
-    public void addStatement(SLStatementNode stmt) {
+    public void addStatement(FStatementNode stmt) {
         currentScope.addStatement(stmt);
     }
 
-    public <T extends SLStatementNode> T withLocation(T node, int startIndex, int stopIndex) {
+    public <T extends FStatementNode> T withLocation(T node, int startIndex, int stopIndex) {
         node.setSourceSection(startIndex, calculateLength(startIndex, stopIndex));
         return node;
     }
 
-    public SLWhileNode createWhile(SLExpressionNode condition, SLBlockNode body, int startIndex, int stopIndex) {
-        if (condition == null || body == null) {
+    public FStatementNode createWhile(FExpressionNode condition, FBlockNode body, int startIndex, int stopIndex) {
+        /*if (condition == null || body == null) {
             return null;
         }
 
-        condition.addStatementTag();
-        final SLWhileNode whileNode = new SLWhileNode(condition, body);
+        final FWhileNode whileNode = new FWhileNode(condition, body);
         whileNode.setSourceSection(startIndex, calculateLength(startIndex, stopIndex));
-        return whileNode;
-    }
+        return whileNode;*/
 
-    public SLIfNode createIf(SLExpressionNode condition, SLStatementNode thenBranch, SLStatementNode elseBranch,
-                             int startIndex) {
         throw new NotImplementedException();
     }
 
-    public SLStatementNode createFor(SLStatementNode prologue, SLExpressionNode condition, SLExpressionNode postIter,
-                                     SLBlockNode body, int startIndex, int stopIndex) {
+    public FStatementNode createIf(FExpressionNode condition, FStatementNode thenBranch, FStatementNode elseBranch,
+                                   int startIndex) {
         throw new NotImplementedException();
     }
 
-    public SLStatementNode declareVariable(String name, SLExpressionNode initialValue, int startIndex, int stopIndex) {
+    public FStatementNode createFor(FStatementNode prologue, FExpressionNode condition, FExpressionNode postIter,
+                                    FBlockNode body, int startIndex, int stopIndex) {
         throw new NotImplementedException();
     }
 
-    public SLReturnNode createReturn(SLExpressionNode returnValue, int startIndex, int stopIndex) {
+    public FStatementNode declareVariable(String name, FExpressionNode initialValue, int startIndex, int stopIndex) {
+        FrameSlot slot = currentScope.addSlot(name);
+        return FWriteLocalVariableNodeGen.create(initialValue, slot);
+    }
+
+    public FStatementNode createReturn(FExpressionNode returnValue, int startIndex, int stopIndex) {
         throw new NotImplementedException();
     }
 
-    public SLStatementNode createAssert(SLExpressionNode expressionNode, int startIndex, int stopIndex) {
+    public FStatementNode createAssert(FExpressionNode expressionNode, int startIndex, int stopIndex) {
         throw new NotImplementedException();
     }
 
-    public SLDebuggerNode createDebuggerHalt(int startIndex, int stopIndex) {
+    public FStatementNode createDebuggerHalt(int startIndex, int stopIndex) {
         throw new NotImplementedException();
     }
 
-    public SLBreakNode createBreak(int startIndex, int stopIndex) {
+    public FStatementNode createBreak(int startIndex, int stopIndex) {
         throw new NotImplementedException();
     }
 
-    public SLContinueNode createContinue(int startIndex, int stopIndex) {
+    public FStatementNode createContinue(int startIndex, int stopIndex) {
         throw new NotImplementedException();
     }
 
-    public SLExpressionNode createBinOp(String opText, SLExpressionNode lhs, SLExpressionNode rhs) {
+    public FExpressionNode createBinOp(String opText, FExpressionNode lhs, FExpressionNode rhs) {
         throw new NotImplementedException();
     }
 
-    public SLExpressionNode createUnOp(String op, SLExpressionNode rhs, int startIndex, int stopIndex) {
+    public FExpressionNode createUnOp(String op, FExpressionNode rhs, int startIndex, int stopIndex) {
         throw new NotImplementedException();
     }
 
-    public SLExpressionNode createCall(String funcName, List<SLExpressionNode> arguments, int startIndex,
-                                       int stopIndex) {
+    public FExpressionNode createCall(String funcName, List<FExpressionNode> arguments, int startIndex, int stopIndex) {
         if (funcName == null || arguments == null || arguments.contains(null)) {
             return null;
         }
 
-        final SLExpressionNode funcNode = new SLFunctionLiteralNode(language, funcName);
+        final FFunctionRef funcNode = new FFunctionRef(language, funcName);
 
-        final SLExpressionNode result = new SLInvokeNode(funcNode, arguments.toArray(new SLExpressionNode[0]));
+        final FExpressionNode result = new FInvokeNode(funcNode, arguments.toArray(new FExpressionNode[0]));
 
         result.setSourceSection(startIndex, calculateLength(startIndex, stopIndex));
         return result;
     }
 
-    public SLExpressionNode createRead(String name, int startIndex, int stopIndex) {
-        throw new NotImplementedException();
+    public FExpressionNode createRead(String name, int startIndex, int stopIndex) {
+        FrameSlot slot = currentScope.resolveSlot(name);
+        return FReadLocalVariableNodeGen.create(slot);
     }
 
-    public SLStringLiteralNode createStringLiteral(Token token, boolean removeQuotes) {
+    public FStringConstantNode createStringLiteral(Token token, boolean removeQuotes) {
         String literal = token.getText();
 
         if (removeQuotes) {
@@ -222,41 +246,40 @@ public class FNodeFactory {
             literal = literal.substring(1, literal.length() - 1);
         }
 
-        final SLStringLiteralNode result = new SLStringLiteralNode(literal.intern());
+        final FStringConstantNode result = new FStringConstantNode(literal.intern());
         srcFromToken(result, token);
-        result.addExpressionTag();
         return result;
     }
 
-    public SLExpressionNode createFloatLiteral(Token token) {
+    public FExpressionNode createFloatLiteral(Token token) {
+        return new FFloatConstantNode(token.getText());
+    }
+
+    public FExpressionNode createIntLiteral(Token token) {
+        return new FIntConstantNode(token.getText());
+    }
+
+    public FExpressionNode createBoolLiteral(Token token) {
+        return new FBooleanConstantNode(token.getText());
+    }
+
+    public FExpressionNode createNullLiteral(Token token) {
+        return new FNullConstantNode();
+    }
+
+    public FExpressionNode createMemberAccess(FExpressionNode lhs, String field, int startIndex, int stopIndex) {
         throw new NotImplementedException();
     }
 
-    public SLExpressionNode createIntLiteral(Token token) {
-        throw new NotImplementedException();
-    }
-
-    public SLExpressionNode createBoolLiteral(Token token) {
-        throw new NotImplementedException();
-    }
-
-    public SLExpressionNode createNullLiteral(Token token) {
-        throw new NotImplementedException();
-    }
-
-    public SLExpressionNode createMemberAccess(SLExpressionNode lhs, String field, int startIndex, int stopIndex) {
-        throw new NotImplementedException();
-    }
-
-    public SLExpressionNode createArrayAccess(SLExpressionNode lhs, SLExpressionNode index, int startIndex,
-                                              int stopIndex) {
+    public FExpressionNode createArrayAccess(FExpressionNode lhs, FExpressionNode index, int startIndex,
+                                             int stopIndex) {
         throw new NotImplementedException();
     }
 
     /**
      * Creates source description of a single token.
      */
-    private static void srcFromToken(SLStatementNode node, Token token) {
+    private static void srcFromToken(FStatementNode node, Token token) {
         node.setSourceSection(token.getStartIndex(), token.getText().length());
     }
 

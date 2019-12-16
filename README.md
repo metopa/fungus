@@ -1,5 +1,18 @@
 # Fungus
 
+## Action plan
+
+- [x] Minimal working example with SL nodes
+- [x] Transfer node system
+- [ ] Incremental node support
+- [ ] Add @operator support
+- [ ] Add array support
+- [ ] Add vector support
+- [ ] Add short circuit operators
+- [ ] Check implicit type conversion
+- [ ] Add support for objects
+- [ ] Add support for global variables
+- [ ] Add support for name shadowing
 ## Fungus Types
 
 - Primitive types

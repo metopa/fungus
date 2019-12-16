@@ -51,7 +51,7 @@ import java.util.Map;
 
 public final class FMain {
 
-  private static final String LANGUAGE_ID = "sl";
+    private static final String LANGUAGE_ID = "fungus";
 
     /**
      * The main entry point.
@@ -92,10 +92,6 @@ public final class FMain {
 
         try {
             Value result = context.eval(source);
-            if (context.getBindings(LANGUAGE_ID).getMember("main") == null) {
-                err.println("No function main() defined in Fungus source file.");
-                return 1;
-            }
             if (!result.isNull()) {
                 out.println(result.toString());
             }

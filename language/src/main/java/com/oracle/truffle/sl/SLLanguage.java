@@ -94,12 +94,12 @@ import com.oracle.truffle.sl.nodes.local.SLLexicalScope;
 import com.oracle.truffle.sl.nodes.local.SLReadLocalVariableNode;
 import com.oracle.truffle.sl.nodes.local.SLWriteLocalVariableNode;
 import com.oracle.truffle.sl.parser.SLNodeFactory;
+import com.oracle.truffle.sl.parser.SimpleLanguageParser;
 import com.oracle.truffle.sl.runtime.SLBigNumber;
 import com.oracle.truffle.sl.runtime.SLContext;
 import com.oracle.truffle.sl.runtime.SLFunction;
 import com.oracle.truffle.sl.runtime.SLFunctionRegistry;
 import com.oracle.truffle.sl.runtime.SLNull;
-import cz.metopa.fungus.parser.FungusParser;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -216,7 +216,7 @@ public final class SLLanguage extends TruffleLanguage<SLContext> {
      * the functions with the SLContext happens lazily in SLEvalRootNode.
      */
     if (request.getArgumentNames().isEmpty()) {
-      functions = FungusParser.parseLanguage(this, source);
+      functions = SimpleLanguageParser.parseSL(this, source);
     } else {
       Source requestedSource = request.getSource();
       StringBuilder sb = new StringBuilder();
@@ -232,7 +232,7 @@ public final class SLLanguage extends TruffleLanguage<SLContext> {
       sb.append(";}");
       String language = requestedSource.getLanguage() == null ? ID : requestedSource.getLanguage();
       Source decoratedSource = Source.newBuilder(language, sb.toString(), request.getSource().getName()).build();
-      functions = FungusParser.parseLanguage(this, decoratedSource);
+      functions = SimpleLanguageParser.parseSL(this, decoratedSource);
     }
 
     RootCallTarget main = functions.get("main");
