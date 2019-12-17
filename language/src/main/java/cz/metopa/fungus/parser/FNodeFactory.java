@@ -4,6 +4,7 @@ import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.FrameSlot;
 import com.oracle.truffle.api.source.Source;
+import cz.metopa.fungus.FException;
 import cz.metopa.fungus.FLanguage;
 import cz.metopa.fungus.nodes.FExpressionNode;
 import cz.metopa.fungus.nodes.FRootNode;
@@ -15,6 +16,7 @@ import cz.metopa.fungus.nodes.expression.*;
 import cz.metopa.fungus.nodes.expression.constants.*;
 import cz.metopa.fungus.runtime.FFunction;
 import org.antlr.v4.runtime.Token;
+import org.apache.commons.text.StringEscapeUtils;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.ArrayList;
@@ -36,22 +38,22 @@ public class FNodeFactory {
             this.descriptor = descriptor;
         }
 
-        public FrameSlot resolveSlot(String name) throws RuntimeException {
+        public FrameSlot resolveSlot(String name) throws FException {
             FrameSlot slot = descriptor.findFrameSlot(name);
             if (slot != null) {
                 return slot;
             }
 
-            throw new RuntimeException("Unknown variable name: " + name);
+            throw FException.parsingError("unknown variable name: " + name);
         }
 
-        public FrameSlot addSlot(String name) throws RuntimeException {
+        public FrameSlot addSlot(String name) throws FException {
             try {
                 FrameSlot slot = descriptor.addFrameSlot(name);
                 slots.put(name, slot);
                 return slot;
             } catch (IllegalArgumentException e) {
-                throw new RuntimeException("Name redefinition error: " + name);
+                throw FException.parsingError("redefined " + name);
             }
         }
 
@@ -131,14 +133,9 @@ public class FNodeFactory {
     public void registerFunction(String name, FExpressionNode rootStatement, FrameDescriptor frameDescriptor) {
         final FRootNode rootNode = new FRootNode(language, frameDescriptor, rootStatement, name);
         if (allFunctions.containsKey(name)) {
-            throw new RuntimeException("Function redefinition error: " + name);
+            throw FException.parsingError(name + " redefined");
         }
         allFunctions.put(name, new FFunction(name, Truffle.getRuntime().createCallTarget(rootNode)));
-    }
-
-    public void registerBuiltin(String name, List<String> parameters, FStatementNode impl) {
-        startFunction(new ArrayList<>()); // TODO real parameters
-        finishFunction(name, impl, -1, -1);
     }
 
     public void startBlock() {

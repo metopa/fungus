@@ -40,6 +40,7 @@
  */
 package cz.metopa.fungus.launcher;
 
+import cz.metopa.fungus.FException;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.PolyglotException;
 import org.graalvm.polyglot.Source;
@@ -96,13 +97,16 @@ public final class FMain {
                 out.println(result.toString());
             }
             return 0;
-        } catch (PolyglotException ex) {
+        } catch (FException ex) {
             if (ex.isInternalError()) {
                 // for internal errors we print the full stack trace
                 ex.printStackTrace();
             } else {
                 err.println(ex.getMessage());
             }
+            return 1;
+        } catch (RuntimeException ex) {
+            err.println(ex);
             return 1;
         } finally {
             context.close();

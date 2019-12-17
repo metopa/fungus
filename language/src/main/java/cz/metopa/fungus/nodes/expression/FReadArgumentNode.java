@@ -2,6 +2,7 @@ package cz.metopa.fungus.nodes.expression;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.profiles.BranchProfile;
+import cz.metopa.fungus.FException;
 import cz.metopa.fungus.nodes.FExpressionNode;
 
 public class FReadArgumentNode extends FExpressionNode {
@@ -19,7 +20,8 @@ public class FReadArgumentNode extends FExpressionNode {
             return args[index];
         } else {
             //outOfBoundsTaken.enter();
-            throw new RuntimeException("Invalid argument index: " + String.valueOf(index) + " of " + String.valueOf(args.length));
+            throw FException.internalError("Invalid argument index: " + String.valueOf(index) +
+                                           " of " + String.valueOf(args.length));
         }
     }
 }
