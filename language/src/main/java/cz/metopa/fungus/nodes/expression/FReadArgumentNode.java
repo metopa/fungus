@@ -20,8 +20,7 @@ public class FReadArgumentNode extends FExpressionNode {
             return args[index];
         } else {
             //outOfBoundsTaken.enter();
-            throw FException.internalError("Invalid argument index: " + String.valueOf(index) +
-                                           " of " + String.valueOf(args.length));
+            throw FException.internalError("Invalid argument index: " + String.valueOf(index) + " of " + String.valueOf(args.length));
         }
     }
 }

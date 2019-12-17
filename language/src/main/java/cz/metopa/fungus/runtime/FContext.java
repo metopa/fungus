@@ -38,7 +38,8 @@ public final class FContext {
         return output;
     }
 
-    private void installBuiltins() {}
+    private void installBuiltins() {
+    }
 
     public FFunction lookupFunction(String name) {
         FFunction func = functionRegistry.get(name);

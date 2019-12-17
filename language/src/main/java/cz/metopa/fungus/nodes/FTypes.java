@@ -1,5 +1,6 @@
 package cz.metopa.fungus.nodes;
 
+import com.oracle.truffle.api.dsl.ImplicitCast;
 import com.oracle.truffle.api.dsl.TypeCast;
 import com.oracle.truffle.api.dsl.TypeCheck;
 import com.oracle.truffle.api.dsl.TypeSystem;
@@ -16,5 +17,10 @@ public abstract class FTypes {
     public static FNull asFNull(Object value) {
         assert isFNull(value);
         return FNull.SINGLETON;
+    }
+
+    @ImplicitCast
+    public static float intAsFloat(int i) {
+        return i;
     }
 }

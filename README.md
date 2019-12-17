@@ -4,15 +4,22 @@
 
 - [x] Minimal working example with SL nodes
 - [x] Transfer node system
-- [ ] Incremental node support
-- [ ] Add @operator support
-- [ ] Add array support
-- [ ] Add vector support
-- [ ] Add short circuit operators
+- [ ] @operator support
+- [ ] Support arrays
+- [ ] Support vectors
+- [ ] Support short circuit operators
 - [ ] Check implicit type conversion
-- [ ] Add support for objects
-- [ ] Add support for global variables
-- [ ] Add support for name shadowing
+- [ ] Support objects
+- [ ] Support global variables
+- [ ] Support name shadowing
+- [ ] Support general lvalue node
+- [x] Support binary operators
+- [ ] Support unary operators
+- [ ] Support control flow nodes
+- [x] Use custom exceptions
+- [ ] Support builtin functions
+- [ ] Add clang-format
+
 ## Fungus Types
 
 - Primitive types

@@ -12,7 +12,11 @@ import cz.metopa.fungus.nodes.FStatementNode;
 import cz.metopa.fungus.nodes.controlflow.FBlockNode;
 import cz.metopa.fungus.nodes.controlflow.FFunctionBodyNode;
 import cz.metopa.fungus.nodes.controlflow.FInvokeNode;
-import cz.metopa.fungus.nodes.expression.*;
+import cz.metopa.fungus.nodes.expression.FFunctionRef;
+import cz.metopa.fungus.nodes.expression.FReadArgumentNode;
+import cz.metopa.fungus.nodes.expression.FReadLocalVariableNodeGen;
+import cz.metopa.fungus.nodes.expression.FWriteLocalVariableNodeGen;
+import cz.metopa.fungus.nodes.expression.binop.*;
 import cz.metopa.fungus.nodes.expression.constants.*;
 import cz.metopa.fungus.runtime.FFunction;
 import org.antlr.v4.runtime.Token;
@@ -132,13 +136,12 @@ public class FNodeFactory {
 
         final FFunctionBodyNode funcBodyNode = new FFunctionBodyNode(funcRootBlock);
         funcBodyNode.setSourceSection(startIndex, stopIndex);
-        registerFunction(name, currentScope.getParameterCount(),
-                funcBodyNode, currentScope.getFrameDescriptor());
+        registerFunction(name, currentScope.getParameterCount(), funcBodyNode, currentScope.getFrameDescriptor());
         currentScope = null;
     }
 
-    public void registerFunction(String name, Integer parameterCount,
-                                 FExpressionNode rootStatement, FrameDescriptor frameDescriptor) {
+    public void registerFunction(String name, Integer parameterCount, FExpressionNode rootStatement,
+                                 FrameDescriptor frameDescriptor) {
         final FRootNode rootNode = new FRootNode(language, frameDescriptor, rootStatement, name);
         if (allFunctions.containsKey(name)) {
             throw FException.parsingError(name + " redefined");
@@ -217,7 +220,38 @@ public class FNodeFactory {
     }
 
     public FExpressionNode createBinOp(String opText, FExpressionNode lhs, FExpressionNode rhs) {
-        throw new NotImplementedException();
+        switch (opText) {
+            case "^":
+                return FPowNodeGen.create(lhs, rhs);
+            case "*":
+                return FMultiplicationNodeGen.create(lhs, rhs);
+            case "/":
+                return FDivNodeGen.create(lhs, rhs);
+            case "%":
+                return FModNodeGen.create(lhs, rhs);
+            case "+":
+                return FAddNodeGen.create(lhs, rhs);
+            case "-":
+                return FSubNodeGen.create(lhs, rhs);
+            case "<":
+                return FLessNodeGen.create(lhs, rhs);
+            case "<=":
+                return FLessEqNodeGen.create(lhs, rhs);
+            case "==":
+                return FEqNodeGen.create(lhs, rhs);
+            case "!=":
+                return FNEqNodeGen.create(lhs, rhs);
+            case ">=":
+                return FGreaterEqNodeGen.create(lhs, rhs);
+            case ">":
+                return FGreaterNodeGen.create(lhs, rhs);
+            case "&&":
+                return FAndNodeGen.create(lhs, rhs);
+            case "||":
+                return FOrNodeGen.create(lhs, rhs);
+            default:
+                throw FException.internalError("Unknown binary operator token: " + opText);
+        }
     }
 
     public FExpressionNode createUnOp(String op, FExpressionNode rhs, int startIndex, int stopIndex) {
@@ -225,14 +259,8 @@ public class FNodeFactory {
     }
 
     public FExpressionNode createCall(String funcName, List<FExpressionNode> arguments, int startIndex, int stopIndex) {
-        if (funcName == null || arguments == null || arguments.contains(null)) {
-            return null;
-        }
-
         final FFunctionRef funcNode = new FFunctionRef(language, funcName);
-
         final FExpressionNode result = new FInvokeNode(funcNode, arguments.toArray(new FExpressionNode[0]));
-
         result.setSourceSection(startIndex, calculateLength(startIndex, stopIndex));
         return result;
     }

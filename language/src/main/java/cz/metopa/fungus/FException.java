@@ -44,20 +44,25 @@ public class FException extends RuntimeException implements TruffleException {
         if (operation != null) {
             NodeInfo nodeInfo = SLContext.lookupNodeInfo(operation.getClass());
             if (nodeInfo != null) {
-                result.append("\"").append(nodeInfo.shortName()).append("\"");
+                result.append("\"").append(nodeInfo.shortName()).append("\" ");
             }
         }
 
-        result.append("not defined for ");
+        result.append("not defined for (");
         result.append(Arrays.stream(Arrays.copyOf(values, values.length)).
                 map(Object::toString).collect(Collectors.joining(", ")));
-
+        result.append(")");
         return new FException(result.toString(), operation, false);
     }
 
     @TruffleBoundary
     public static FException parsingError(String message) {
         return new FException("Parsing error: " + message, null, false);
+    }
+
+    @TruffleBoundary
+    public static FException runtimeError(String message, Node node) {
+        return new FException("Runtime error: " + message, node, false);
     }
 
     @TruffleBoundary

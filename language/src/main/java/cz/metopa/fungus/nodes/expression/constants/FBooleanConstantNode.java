@@ -2,7 +2,6 @@ package cz.metopa.fungus.nodes.expression.constants;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import cz.metopa.fungus.nodes.FExpressionNode;
 
 @NodeInfo(shortName = "bool")

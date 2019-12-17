@@ -8,7 +8,7 @@ import java.util.Map;
 
 import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.RootCallTarget;
-import com.oracle.truffle.sl.SLLanguage;
+import cz.metopa.fungus.FException;
 import cz.metopa.fungus.FLanguage;
 import cz.metopa.fungus.nodes.FExpressionNode;
 import cz.metopa.fungus.nodes.FRootNode;
@@ -53,10 +53,7 @@ public void SemErr(Token token, String message) {
 }
 
 private static void throwParseError(Source source, int line, int charPositionInLine, Token token, String message) {
-    int col = charPositionInLine + 1;
-    String location = "-- line " + line + " col " + col + ": ";
-    int length = token == null ? 1 : Math.max(token.getStopIndex() - token.getStartIndex(), 0);
-    throw new RuntimeException(message);// SLParseError(source, line, col, length, String.format("Error(s) parsing script:%n" + location + message));
+    throw FException.parsingError(message);
 }
 
 public static Map<String, FFunction> parseLanguage(FLanguage language, Source source) {
@@ -201,7 +198,7 @@ expr returns [FExpressionNode result]:
     lhs=expr op=('+' | '-') rhs=expr
                                { $result = factory.createBinOp($op.getText(), $lhs.result, $rhs.result); } |
     // comparison
-    lhs=expr op=('<' | '<=' | '==' | '!=' | '>=' | '>') rhs=expr
+    lhs=expr op=('<=' | '<' | '==' | '!=' | '>=' | '>') rhs=expr
                                { $result = factory.createBinOp($op.getText(), $lhs.result, $rhs.result); } |
     // AND
     lhs=expr op='&&' rhs=expr

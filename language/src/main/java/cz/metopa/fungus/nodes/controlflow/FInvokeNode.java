@@ -42,8 +42,8 @@ public final class FInvokeNode extends FExpressionNode {
         Integer parameterCount = function.getParameterCount();
         if (parameterCount != null) {
             if (parameterCount != argumentValues.length) {
-                throw FException.parsingError(function.getName() + " expects " + parameterCount.toString() +
-                        " parameters, provided " + String.valueOf(argumentValues.length));
+                throw FException.parsingError(function.getName() + " expects " + parameterCount.toString() + " " +
+                        "parameters, provided " + String.valueOf(argumentValues.length));
             }
         }
 

@@ -12,6 +12,7 @@ public final class FFloatConstantNode extends FExpressionNode {
     public FFloatConstantNode(float value) {
         this.value = value;
     }
+
     public FFloatConstantNode(String str) {
         this.value = Float.parseFloat(str);
     }

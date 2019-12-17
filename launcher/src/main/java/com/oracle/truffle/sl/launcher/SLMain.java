@@ -97,13 +97,10 @@ public final class SLMain {
         out.println("== running on " + context.getEngine());
 
         try {
-            Value result = context.eval(source);
+            context.eval(source);
             if (context.getBindings(SL).getMember("main") == null) {
                 err.println("No function main() defined in SL source file.");
                 return 1;
-            }
-            if (!result.isNull()) {
-                out.println(result.toString());
             }
             return 0;
         } catch (PolyglotException ex) {
