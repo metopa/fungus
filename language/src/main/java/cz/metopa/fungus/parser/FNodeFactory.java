@@ -243,6 +243,8 @@ public class FNodeFactory {
             literal = literal.substring(1, literal.length() - 1);
         }
 
+        literal = StringEscapeUtils.unescapeJava(literal);
+
         final FStringConstantNode result = new FStringConstantNode(literal.intern());
         srcFromToken(result, token);
         return result;
