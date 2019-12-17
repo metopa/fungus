@@ -4,6 +4,7 @@ import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.NodeInfo;
+import cz.metopa.fungus.FException;
 import cz.metopa.fungus.nodes.FExpressionNode;
 import cz.metopa.fungus.nodes.expression.FFunctionRef;
 import cz.metopa.fungus.runtime.FFunction;
@@ -37,6 +38,14 @@ public final class FInvokeNode extends FExpressionNode {
         System.out.println(function.getName() + "(" + Arrays.stream(Arrays.copyOf(argumentValues,
                 argumentValues.length)).
                 map(Object::toString).collect(Collectors.joining(", ")) + ")");
+
+        Integer parameterCount = function.getParameterCount();
+        if (parameterCount != null) {
+            if (parameterCount != argumentValues.length) {
+                throw FException.parsingError(function.getName() + " expects " + parameterCount.toString() +
+                        " parameters, provided " + String.valueOf(argumentValues.length));
+            }
+        }
 
         return function.getCallTarget().call(argumentValues);
     }

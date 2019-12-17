@@ -30,12 +30,14 @@ public class FNodeFactory {
         private final Map<String, FrameSlot> slots;
         private final List<FStatementNode> statements;
         private final FrameDescriptor descriptor;
+        private final int parameterCount;
 
-        public LexicalScope(LexicalScope parent, FrameDescriptor descriptor) {
+        public LexicalScope(LexicalScope parent, FrameDescriptor descriptor, int parameterCount) {
             this.parent = parent;
             this.slots = new HashMap<>();
             this.statements = new ArrayList<>();
             this.descriptor = descriptor;
+            this.parameterCount = parameterCount;
         }
 
         public FrameSlot resolveSlot(String name) throws FException {
@@ -70,7 +72,11 @@ public class FNodeFactory {
         }
 
         public LexicalScope createChild() {
-            return new LexicalScope(this, descriptor);
+            return new LexicalScope(this, descriptor, parameterCount);
+        }
+
+        public int getParameterCount() {
+            return parameterCount;
         }
 
         public FrameDescriptor getFrameDescriptor() {
@@ -102,7 +108,7 @@ public class FNodeFactory {
     }
 
     public void startFunction(List<Token> parameters) {
-        currentScope = new LexicalScope(null, new FrameDescriptor());
+        currentScope = new LexicalScope(null, new FrameDescriptor(), parameters.size());
         startBlock();
 
         for (int i = 0; i < parameters.size(); i++) {
@@ -126,16 +132,18 @@ public class FNodeFactory {
 
         final FFunctionBodyNode funcBodyNode = new FFunctionBodyNode(funcRootBlock);
         funcBodyNode.setSourceSection(startIndex, stopIndex);
-        registerFunction(name, funcBodyNode, currentScope.getFrameDescriptor());
+        registerFunction(name, currentScope.getParameterCount(),
+                funcBodyNode, currentScope.getFrameDescriptor());
         currentScope = null;
     }
 
-    public void registerFunction(String name, FExpressionNode rootStatement, FrameDescriptor frameDescriptor) {
+    public void registerFunction(String name, Integer parameterCount,
+                                 FExpressionNode rootStatement, FrameDescriptor frameDescriptor) {
         final FRootNode rootNode = new FRootNode(language, frameDescriptor, rootStatement, name);
         if (allFunctions.containsKey(name)) {
             throw FException.parsingError(name + " redefined");
         }
-        allFunctions.put(name, new FFunction(name, Truffle.getRuntime().createCallTarget(rootNode)));
+        allFunctions.put(name, new FFunction(name, Truffle.getRuntime().createCallTarget(rootNode), parameterCount));
     }
 
     public void startBlock() {

@@ -106,7 +106,7 @@ public final class FMain {
             }
             return 1;
         } catch (RuntimeException ex) {
-            err.println(ex);
+            ex.printStackTrace(err);
             return 1;
         } finally {
             context.close();
