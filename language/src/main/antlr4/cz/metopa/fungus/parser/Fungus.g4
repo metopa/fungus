@@ -17,7 +17,7 @@ import cz.metopa.fungus.nodes.controlflow.FBlockNode;
 import cz.metopa.fungus.nodes.controlflow.FFunctionBodyNode;
 import cz.metopa.fungus.nodes.controlflow.FInvokeNode;
 import cz.metopa.fungus.nodes.expression.FFunctionRef;
-import cz.metopa.fungus.nodes.expression.FReadArgumentNode;
+import cz.metopa.fungus.nodes.FReadArgumentNode;
 import cz.metopa.fungus.nodes.expression.constants.FStringConstantNode;
 import cz.metopa.fungus.runtime.FFunction;
 import cz.metopa.fungus.parser.FNodeFactory;
@@ -56,7 +56,7 @@ private static void throwParseError(Source source, int line, int charPositionInL
     throw FException.parsingError(message);
 }
 
-public static Map<String, FFunction> parseLanguage(FLanguage language, Source source) {
+public static Map<String, FFunction> parseLanguage(FLanguage language, Source source, FNodeFactory factory) {
     FungusLexer lexer = new FungusLexer(CharStreams.fromString(source.getCharacters().toString()));
     FungusParser parser = new FungusParser(new CommonTokenStream(lexer));
     lexer.removeErrorListeners();
@@ -64,7 +64,7 @@ public static Map<String, FFunction> parseLanguage(FLanguage language, Source so
     BailoutErrorListener listener = new BailoutErrorListener(source);
     lexer.addErrorListener(listener);
     parser.addErrorListener(listener);
-    parser.factory = new FNodeFactory(language, source);
+    parser.factory = factory;
     parser.source = source;
     parser.fungus();
     return parser.factory.getAllFunctions();

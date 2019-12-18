@@ -32,12 +32,6 @@ public final class FInvokeNode extends FExpressionNode {
             argumentValues[i] = argumentNodes[i].executeGeneric(frame);
         }
 
-        System.out.println(function.getName() + "(" +
-                           Arrays.stream(Arrays.copyOf(argumentValues, argumentValues.length))
-                               .map(Object::toString)
-                               .collect(Collectors.joining(", ")) +
-                           ")");
-
         Integer parameterCount = function.getParameterCount();
         if (parameterCount != null) {
             if (parameterCount != argumentValues.length) {

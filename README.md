@@ -17,8 +17,11 @@
 - [ ] Support unary operators
 - [ ] Support control flow nodes
 - [x] Use custom exceptions
-- [ ] Support builtin functions
+- [x] Support builtin functions
+- [ ] Implement builtins
 - [x] Add clang-format
+- [ ] Bool conversion support
+- [ ] Null comparison support
 
 ## Fungus Types
 

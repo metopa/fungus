@@ -92,10 +92,7 @@ public final class FMain {
         out.println("==== current engine: " + context.getEngine() + " ====");
 
         try {
-            Value result = context.eval(source);
-            if (!result.isNull()) {
-                out.println(result.toString());
-            }
+            context.eval(source);
             return 0;
         } catch (FException ex) {
             if (ex.isInternalError()) {

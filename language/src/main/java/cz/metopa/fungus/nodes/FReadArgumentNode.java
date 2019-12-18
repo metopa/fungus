@@ -1,4 +1,4 @@
-package cz.metopa.fungus.nodes.expression;
+package cz.metopa.fungus.nodes;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.profiles.BranchProfile;
@@ -17,7 +17,7 @@ public class FReadArgumentNode extends FExpressionNode {
         if (index < args.length) {
             return args[index];
         } else {
-            // outOfBoundsTaken.enter();
+            outOfBoundsTaken.enter();
             throw FException.internalError("Invalid argument index: " + String.valueOf(index) +
                                            " of " + String.valueOf(args.length));
         }
