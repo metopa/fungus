@@ -4,6 +4,7 @@ import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.TruffleLanguage.ContextPolicy;
 import com.oracle.truffle.api.source.Source;
+import cz.metopa.fungus.builtin.FFormatFunction;
 import cz.metopa.fungus.builtin.FPrintFunction;
 import cz.metopa.fungus.parser.FNodeFactory;
 import cz.metopa.fungus.parser.FungusParser;
@@ -48,5 +49,8 @@ public final class FLanguage extends TruffleLanguage<FContext> {
         return false;
     }
 
-    private void registerBuiltins(FNodeFactory factory) { FPrintFunction.register(factory); }
+    private void registerBuiltins(FNodeFactory factory) {
+        FPrintFunction.register(factory);
+        FFormatFunction.register(factory);
+    }
 }

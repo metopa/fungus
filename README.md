@@ -64,12 +64,8 @@
 - Special tokens
   - `true`
   - `false`
-  - `bool`
-  - `int`
-  - `float`
   - `vec3`
   - `array<T>`
-  - `halt`
   - `assert`
   - `return`
   - `break`
@@ -88,7 +84,13 @@
   - `sqrt`
   - `rand`
   - `now`
+  - `format`
   - `type`
+  - Type conversions
+    - `bool`
+    - `int`
+    - `float`
+    - `string`
     
 ## Operator precedence
 - `.`, `()`, `[]`

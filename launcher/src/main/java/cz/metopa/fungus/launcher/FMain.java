@@ -89,7 +89,6 @@ public final class FMain {
             err.println(e.getMessage());
             return 1;
         }
-        out.println("==== current engine: " + context.getEngine() + " ====");
 
         try {
             context.eval(source);
