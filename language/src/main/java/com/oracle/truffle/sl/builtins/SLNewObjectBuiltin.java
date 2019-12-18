@@ -56,15 +56,16 @@ import com.oracle.truffle.sl.runtime.SLNull;
 import com.oracle.truffle.sl.runtime.SLUndefinedNameException;
 
 /**
- * Built-in function to create a new object. Objects in SL are simply made up of name/value pairs.
+ * Built-in function to create a new object. Objects in SL are simply made up of
+ * name/value pairs.
  */
 @NodeInfo(shortName = "new")
 public abstract class SLNewObjectBuiltin extends SLBuiltinNode {
-
     @Specialization
     @SuppressWarnings("unused")
-    public Object newObject(SLNull o, @CachedContext(SLLanguage.class) SLContext context,
-                    @Cached("context.getAllocationReporter()") AllocationReporter reporter) {
+    public Object
+    newObject(SLNull o, @CachedContext(SLLanguage.class) SLContext context,
+              @Cached("context.getAllocationReporter()") AllocationReporter reporter) {
         return context.createObject(reporter);
     }
 

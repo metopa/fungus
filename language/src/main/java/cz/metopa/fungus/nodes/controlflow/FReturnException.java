@@ -7,11 +7,7 @@ public final class FReturnException extends ControlFlowException {
 
     private final Object result;
 
-    public FReturnException(Object result) {
-        this.result = result;
-    }
+    public FReturnException(Object result) { this.result = result; }
 
-    public Object getResult() {
-        return result;
-    }
+    public Object getResult() { return result; }
 }

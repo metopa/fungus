@@ -47,7 +47,6 @@ import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.source.SourceSection;
 
 public class SLParseError extends RuntimeException implements TruffleException {
-
     public static final long serialVersionUID = 1L;
     private final Source source;
     private final int line;

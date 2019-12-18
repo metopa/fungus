@@ -25,11 +25,7 @@ public abstract class FStatementNode extends Node {
         // Ignored
     }
 
-    public int getStartIndex() {
-        return NO_SOURCE;
-    }
+    public int getStartIndex() { return NO_SOURCE; }
 
-    public int getStopIndex() {
-        return NO_SOURCE;
-    }
+    public int getStopIndex() { return NO_SOURCE; }
 }

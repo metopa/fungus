@@ -40,11 +40,6 @@
  */
 package com.oracle.truffle.sl.nodes.local;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Objects;
-
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.frame.Frame;
 import com.oracle.truffle.api.frame.FrameSlot;
@@ -63,12 +58,15 @@ import com.oracle.truffle.sl.nodes.SLEvalRootNode;
 import com.oracle.truffle.sl.nodes.SLStatementNode;
 import com.oracle.truffle.sl.nodes.controlflow.SLBlockNode;
 import com.oracle.truffle.sl.runtime.SLNull;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * Simple language lexical scope. There can be a block scope, or function scope.
  */
 public final class SLLexicalScope {
-
     private final Node current;
     private final SLBlockNode block;
     private final SLBlockNode parentBlock;
@@ -93,7 +91,8 @@ public final class SLLexicalScope {
     /**
      * Create a new functional SL lexical scope.
      *
-     * @param current the current node, or <code>null</code> when it would be above the block
+     * @param current the current node, or <code>null</code> when it would be
+     *     above the block
      * @param block a nearest block enclosing the current node
      * @param root a functional root node for top-most block
      */
@@ -112,8 +111,9 @@ public final class SLLexicalScope {
             block = findChildrenBlock(node);
             if (block == null) {
                 // Corrupted SL AST, no block was found
-                assert node.getRootNode() instanceof SLEvalRootNode : "Corrupted SL AST under " + node;
-                return new SLLexicalScope(null, null, (SLBlockNode) null);
+                assert node.getRootNode() instanceof
+                    SLEvalRootNode : "Corrupted SL AST under " + node;
+                return new SLLexicalScope(null, null, (SLBlockNode)null);
             }
             node = null; // node is above the block
         }
@@ -134,7 +134,7 @@ public final class SLLexicalScope {
             parent = parent.getParent();
         }
         if (parent != null) {
-            block = (SLBlockNode) parent;
+            block = (SLBlockNode)parent;
         } else {
             block = null;
         }
@@ -147,7 +147,7 @@ public final class SLLexicalScope {
             @Override
             public boolean visit(Node n) {
                 if (n instanceof SLBlockNode) {
-                    blockPtr[0] = (SLBlockNode) n;
+                    blockPtr[0] = (SLBlockNode)n;
                     return false;
                 } else {
                     return true;
@@ -188,7 +188,8 @@ public final class SLLexicalScope {
     }
 
     /**
-     * @return the node representing the scope, the block node for block scopes and the
+     * @return the node representing the scope, the block node for block scopes
+     *     and the
      *         {@link RootNode} for functional scope.
      */
     public Node getNode() {
@@ -248,8 +249,9 @@ public final class SLLexicalScope {
 
     private Map<String, FrameSlot> collectVars(Node varsBlock, Node currentNode) {
         // Variables are slot-based.
-        // To collect declared variables, traverse the block's AST and find slots associated
-        // with SLWriteLocalVariableNode. The traversal stops when we hit the current node.
+        // To collect declared variables, traverse the block's AST and find slots
+        // associated with SLWriteLocalVariableNode. The traversal stops when we hit
+        // the current node.
         Map<String, FrameSlot> slots = new LinkedHashMap<>(4);
         NodeUtil.forEachChild(varsBlock, new NodeVisitor() {
             @Override
@@ -264,9 +266,10 @@ public final class SLLexicalScope {
                         return false;
                     }
                 }
-                // Write to a variable is a declaration unless it exists already in a parent scope.
+                // Write to a variable is a declaration unless it exists already in a
+                // parent scope.
                 if (node instanceof SLWriteLocalVariableNode) {
-                    SLWriteLocalVariableNode wn = (SLWriteLocalVariableNode) node;
+                    SLWriteLocalVariableNode wn = (SLWriteLocalVariableNode)node;
                     String name = Objects.toString(wn.getSlot().getIdentifier());
                     if (!hasParentVar(name)) {
                         slots.put(name, wn.getSlot());
@@ -279,19 +282,19 @@ public final class SLLexicalScope {
     }
 
     private static Map<String, FrameSlot> collectArgs(Node block) {
-        // Arguments are pushed to frame slots at the beginning of the function block.
-        // To collect argument slots, search for SLReadArgumentNode inside of
+        // Arguments are pushed to frame slots at the beginning of the function
+        // block. To collect argument slots, search for SLReadArgumentNode inside of
         // SLWriteLocalVariableNode.
         Map<String, FrameSlot> args = new LinkedHashMap<>(4);
         NodeUtil.forEachChild(block, new NodeVisitor() {
-
             private SLWriteLocalVariableNode wn; // The current write node containing a slot
 
             @Override
             public boolean visit(Node node) {
-                // When there is a write node, search for SLReadArgumentNode among its children:
+                // When there is a write node, search for SLReadArgumentNode among its
+                // children:
                 if (node instanceof SLWriteLocalVariableNode) {
-                    wn = (SLWriteLocalVariableNode) node;
+                    wn = (SLWriteLocalVariableNode)node;
                     boolean all = NodeUtil.forEachChild(node, this);
                     wn = null;
                     return all;
@@ -314,12 +317,12 @@ public final class SLLexicalScope {
 
     @ExportLibrary(InteropLibrary.class)
     static final class VariablesMapObject implements TruffleObject {
-
         final Map<String, ? extends FrameSlot> slots;
         final Object[] args;
         final Frame frame;
 
-        private VariablesMapObject(Map<String, ? extends FrameSlot> slots, Object[] args, Frame frame) {
+        private VariablesMapObject(Map<String, ? extends FrameSlot> slots, Object[] args,
+                                   Frame frame) {
             this.slots = slots;
             this.args = args;
             this.frame = frame;
@@ -339,7 +342,8 @@ public final class SLLexicalScope {
 
         @ExportMessage
         @TruffleBoundary
-        void writeMember(String member, Object value) throws UnsupportedMessageException, UnknownIdentifierException {
+        void writeMember(String member, Object value)
+            throws UnsupportedMessageException, UnknownIdentifierException {
             if (frame == null) {
                 throw UnsupportedMessageException.create();
             }
@@ -349,7 +353,7 @@ public final class SLLexicalScope {
             } else {
                 Object info = slot.getInfo();
                 if (args != null && info != null) {
-                    args[(Integer) info] = value;
+                    args[(Integer)info] = value;
                 } else {
                     frame.setObject(slot, value);
                 }
@@ -369,7 +373,7 @@ public final class SLLexicalScope {
                 Object value;
                 Object info = slot.getInfo();
                 if (args != null && info != null) {
-                    value = args[(Integer) info];
+                    value = args[(Integer)info];
                 } else {
                     value = frame.getValue(slot);
                 }
@@ -394,17 +398,13 @@ public final class SLLexicalScope {
         boolean isMemberReadable(String member) {
             return frame == null || slots.containsKey(member);
         }
-
     }
 
     @ExportLibrary(InteropLibrary.class)
     static final class KeysArray implements TruffleObject {
-
         private final String[] keys;
 
-        KeysArray(String[] keys) {
-            this.keys = keys;
-        }
+        KeysArray(String[] keys) { this.keys = keys; }
 
         @SuppressWarnings("static-method")
         @ExportMessage
@@ -427,9 +427,7 @@ public final class SLLexicalScope {
             if (!isArrayElementReadable(index)) {
                 throw InvalidArrayIndexException.create(index);
             }
-            return keys[(int) index];
+            return keys[(int)index];
         }
-
     }
-
 }

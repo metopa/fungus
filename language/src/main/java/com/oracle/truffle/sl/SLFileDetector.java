@@ -45,7 +45,6 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 
 public final class SLFileDetector implements TruffleFile.FileTypeDetector {
-
     @Override
     public String findMimeType(TruffleFile file) throws IOException {
         String name = file.getName();

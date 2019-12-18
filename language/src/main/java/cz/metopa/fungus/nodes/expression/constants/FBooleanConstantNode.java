@@ -8,13 +8,9 @@ import cz.metopa.fungus.nodes.FExpressionNode;
 public final class FBooleanConstantNode extends FExpressionNode {
     private final boolean value;
 
-    public FBooleanConstantNode(boolean value) {
-        this.value = value;
-    }
+    public FBooleanConstantNode(boolean value) { this.value = value; }
 
-    public FBooleanConstantNode(String str) {
-        this.value = Boolean.parseBoolean(str);
-    }
+    public FBooleanConstantNode(String str) { this.value = Boolean.parseBoolean(str); }
 
     @Override
     public Boolean executeGeneric(VirtualFrame frame) {

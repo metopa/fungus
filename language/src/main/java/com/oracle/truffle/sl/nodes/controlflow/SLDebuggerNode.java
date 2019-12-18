@@ -47,11 +47,11 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.sl.nodes.SLStatementNode;
 
 /**
- * Implementation of the SL debugger statement. When under the debugger, execution suspends here.
+ * Implementation of the SL debugger statement. When under the debugger,
+ * execution suspends here.
  */
 @NodeInfo(shortName = "debugger", description = "The node implementing a debugger statement")
 public class SLDebuggerNode extends SLStatementNode {
-
     @Override
     public void executeVoid(VirtualFrame frame) {
         // No op.
@@ -64,5 +64,4 @@ public class SLDebuggerNode extends SLStatementNode {
         }
         return super.hasTag(tag);
     }
-
 }

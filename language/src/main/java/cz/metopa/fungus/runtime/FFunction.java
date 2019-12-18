@@ -14,22 +14,15 @@ public final class FFunction implements TruffleObject {
         this.parameterCount = parameterCount;
     }
 
-    public String getName() {
-        return name;
-    }
+    public String getName() { return name; }
 
     /// If null, callTarget checks parameter count by itself.
-    public Integer getParameterCount() {
-        return parameterCount;
-    }
+    public Integer getParameterCount() { return parameterCount; }
 
-    public RootCallTarget getCallTarget() {
-        return callTarget;
-    }
+    public RootCallTarget getCallTarget() { return callTarget; }
 
     @Override
     public String toString() {
         return name;
     }
-
 }

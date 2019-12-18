@@ -40,9 +40,6 @@
  */
 package com.oracle.truffle.sl.runtime;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.interop.InteropLibrary;
@@ -50,15 +47,15 @@ import com.oracle.truffle.api.interop.InvalidArrayIndexException;
 import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
+import java.util.HashMap;
+import java.util.Map;
 
 @ExportLibrary(InteropLibrary.class)
 @SuppressWarnings("static-method")
 final class FunctionsObject implements TruffleObject {
-
     final Map<String, SLFunction> functions = new HashMap<>();
 
-    FunctionsObject() {
-    }
+    FunctionsObject() {}
 
     @ExportMessage
     boolean hasMembers() {
@@ -83,18 +80,13 @@ final class FunctionsObject implements TruffleObject {
         return new FunctionNamesObject(functions.keySet().toArray());
     }
 
-    public static boolean isInstance(TruffleObject obj) {
-        return obj instanceof FunctionsObject;
-    }
+    public static boolean isInstance(TruffleObject obj) { return obj instanceof FunctionsObject; }
 
     @ExportLibrary(InteropLibrary.class)
     static final class FunctionNamesObject implements TruffleObject {
-
         private final Object[] names;
 
-        FunctionNamesObject(Object[] names) {
-            this.names = names;
-        }
+        FunctionNamesObject(Object[] names) { this.names = names; }
 
         @ExportMessage
         boolean hasArrayElements() {
@@ -117,7 +109,7 @@ final class FunctionsObject implements TruffleObject {
                 CompilerDirectives.transferToInterpreter();
                 throw InvalidArrayIndexException.create(index);
             }
-            return names[(int) index];
+            return names[(int)index];
         }
     }
 }

@@ -9,9 +9,7 @@ public class FReadArgumentNode extends FExpressionNode {
     private final int index;
     private final BranchProfile outOfBoundsTaken = BranchProfile.create();
 
-    public FReadArgumentNode(int index) {
-        this.index = index;
-    }
+    public FReadArgumentNode(int index) { this.index = index; }
 
     @Override
     public Object executeGeneric(VirtualFrame frame) {
@@ -19,8 +17,9 @@ public class FReadArgumentNode extends FExpressionNode {
         if (index < args.length) {
             return args[index];
         } else {
-            //outOfBoundsTaken.enter();
-            throw FException.internalError("Invalid argument index: " + String.valueOf(index) + " of " + String.valueOf(args.length));
+            // outOfBoundsTaken.enter();
+            throw FException.internalError("Invalid argument index: " + String.valueOf(index) +
+                                           " of " + String.valueOf(args.length));
         }
     }
 }

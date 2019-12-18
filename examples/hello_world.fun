@@ -1,12 +1,9 @@
-func printa(a, b, c) {
+func p(c) {
 
 }
 
-func print(a) {
-    printa(a, 5, null);
-    printa(10.5, 0.2e-10, true);
-}
 
 func main() {
-    print("Hello, world");
+    p((!(4 == 2 + 2)));
+    p(-+-(4 ^ -1));
 }

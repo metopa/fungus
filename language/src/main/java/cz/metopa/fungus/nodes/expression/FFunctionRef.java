@@ -14,8 +14,7 @@ import cz.metopa.fungus.runtime.FFunction;
 public final class FFunctionRef extends FExpressionNode {
     private final String functionName;
     private final ContextReference<FContext> reference;
-    @CompilationFinal
-    private FFunction cachedFunction;
+    @CompilationFinal private FFunction cachedFunction;
 
     public FFunctionRef(FLanguage language, String functionName) {
         this.functionName = functionName;
@@ -31,5 +30,4 @@ public final class FFunctionRef extends FExpressionNode {
 
         return cachedFunction;
     }
-
 }

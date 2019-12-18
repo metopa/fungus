@@ -9,15 +9,12 @@ import cz.metopa.fungus.runtime.FNull;
 
 @NodeInfo(shortName = "body")
 public final class FFunctionBodyNode extends FExpressionNode {
-    @Child
-    private FStatementNode bodyNode;
+    @Child private FStatementNode bodyNode;
 
     private final BranchProfile exceptionTaken = BranchProfile.create();
     private final BranchProfile nullTaken = BranchProfile.create();
 
-    public FFunctionBodyNode(FStatementNode bodyNode) {
-        this.bodyNode = bodyNode;
-    }
+    public FFunctionBodyNode(FStatementNode bodyNode) { this.bodyNode = bodyNode; }
 
     @Override
     public Object executeGeneric(VirtualFrame frame) {

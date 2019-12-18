@@ -40,33 +40,30 @@
  */
 package com.oracle.truffle.sl.runtime;
 
+import com.oracle.truffle.api.RootCallTarget;
+import com.oracle.truffle.api.interop.TruffleObject;
+import com.oracle.truffle.api.source.Source;
+import com.oracle.truffle.sl.SLLanguage;
+import com.oracle.truffle.sl.parser.SimpleLanguageParser;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
-import com.oracle.truffle.api.RootCallTarget;
-import com.oracle.truffle.api.interop.TruffleObject;
-import com.oracle.truffle.api.source.Source;
-import com.oracle.truffle.sl.SLLanguage;
-import com.oracle.truffle.sl.parser.SimpleLanguageParser;
-
 /**
- * Manages the mapping from function names to {@link SLFunction function objects}.
+ * Manages the mapping from function names to {@link SLFunction function
+ * objects}.
  */
 public final class SLFunctionRegistry {
-
     private final SLLanguage language;
     private final FunctionsObject functionsObject = new FunctionsObject();
 
-    public SLFunctionRegistry(SLLanguage language) {
-        this.language = language;
-    }
+    public SLFunctionRegistry(SLLanguage language) { this.language = language; }
 
     /**
-     * Returns the canonical {@link SLFunction} object for the given name. If it does not exist yet,
-     * it is created.
+     * Returns the canonical {@link SLFunction} object for the given name. If it
+     * does not exist yet, it is created.
      */
     public SLFunction lookup(String name, boolean createIfNotPresent) {
         SLFunction result = functionsObject.functions.get(name);
@@ -78,9 +75,10 @@ public final class SLFunctionRegistry {
     }
 
     /**
-     * Associates the {@link SLFunction} with the given name with the given implementation root
-     * node. If the function did not exist before, it defines the function. If the function existed
-     * before, it redefines the function and the old implementation is discarded.
+     * Associates the {@link SLFunction} with the given name with the given
+     * implementation root node. If the function did not exist before, it defines
+     * the function. If the function existed before, it redefines the function and
+     * the old implementation is discarded.
      */
     public SLFunction register(String name, RootCallTarget callTarget) {
         SLFunction function = lookup(name, true);
@@ -98,9 +96,7 @@ public final class SLFunctionRegistry {
         register(SimpleLanguageParser.parseSL(language, newFunctions));
     }
 
-    public SLFunction getFunction(String name) {
-        return functionsObject.functions.get(name);
-    }
+    public SLFunction getFunction(String name) { return functionsObject.functions.get(name); }
 
     /**
      * Returns the sorted list of all functions, for printing purposes only.
@@ -115,8 +111,5 @@ public final class SLFunctionRegistry {
         return result;
     }
 
-    public TruffleObject getFunctionsObject() {
-        return functionsObject;
-    }
-
+    public TruffleObject getFunctionsObject() { return functionsObject; }
 }

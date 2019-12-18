@@ -41,17 +41,15 @@
 package cz.metopa.fungus.launcher;
 
 import cz.metopa.fungus.FException;
+import java.io.*;
+import java.util.HashMap;
+import java.util.Map;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.PolyglotException;
 import org.graalvm.polyglot.Source;
 import org.graalvm.polyglot.Value;
 
-import java.io.*;
-import java.util.HashMap;
-import java.util.Map;
-
 public final class FMain {
-
     private static final String LANGUAGE_ID = "fungus";
 
     /**
@@ -72,7 +70,8 @@ public final class FMain {
         }
 
         if (file == null) {
-            source = Source.newBuilder(LANGUAGE_ID, new InputStreamReader(System.in), "<stdin>").build();
+            source =
+                Source.newBuilder(LANGUAGE_ID, new InputStreamReader(System.in), "<stdin>").build();
         } else {
             source = Source.newBuilder(LANGUAGE_ID, new File(file)).build();
         }
@@ -80,7 +79,8 @@ public final class FMain {
         System.exit(executeSource(source, System.in, System.out, options));
     }
 
-    private static int executeSource(Source source, InputStream in, PrintStream out, Map<String, String> options) {
+    private static int executeSource(Source source, InputStream in, PrintStream out,
+                                     Map<String, String> options) {
         Context context;
         PrintStream err = System.err;
         try {
@@ -135,5 +135,4 @@ public final class FMain {
         options.put(key, value);
         return true;
     }
-
 }

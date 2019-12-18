@@ -53,17 +53,16 @@ import com.oracle.truffle.sl.runtime.SLNull;
 
 /**
  * The {@code ==} operator of SL is defined on all types. Therefore, we need a
- * {@link #equal(Object, Object) implementation} that can handle all possible types. But since
- * {@code ==} can only return {@code true} when the type of the left and right operand are the same,
- * the specializations already cover all possible cases that can return {@code true} and the generic
- * case is trivial.
- * <p>
- * Note that we do not need the analogous {@code !=} operator, because we can just
+ * {@link #equal(Object, Object) implementation} that can handle all possible
+ * types. But since
+ * {@code ==} can only return {@code true} when the type of the left and right
+ * operand are the same, the specializations already cover all possible cases
+ * that can return {@code true} and the generic case is trivial. <p> Note that
+ * we do not need the analogous {@code !=} operator, because we can just
  * {@link SLLogicalNotNode negate} the {@code ==} operator.
  */
 @NodeInfo(shortName = "==")
 public abstract class SLEqualNode extends SLBinaryNode {
-
     @Specialization
     protected boolean equal(long left, long right) {
         return left == right;
@@ -88,15 +87,16 @@ public abstract class SLEqualNode extends SLBinaryNode {
     @Specialization
     protected boolean equal(SLFunction left, SLFunction right) {
         /*
-         * Our function registry maintains one canonical SLFunction object per function name, so we
-         * do not need equals().
+         * Our function registry maintains one canonical SLFunction object per
+         * function name, so we do not need equals().
          */
         return left == right;
     }
 
     @Specialization
     protected boolean equal(SLNull left, SLNull right) {
-        /* There is only the singleton instance of SLNull, so we do not need equals(). */
+        /* There is only the singleton instance of SLNull, so we do not need
+         * equals(). */
         return left == right;
     }
 
@@ -109,17 +109,18 @@ public abstract class SLEqualNode extends SLBinaryNode {
     }
 
     /**
-     * We covered all the cases that can return true in the type specializations above. If we
-     * compare two values with different types, the result is known to be false.
-     * <p>
-     * Note that the guard is essential for correctness: without the guard, the specialization would
-     * also match when the left and right value have the same type. The following scenario would
-     * return a wrong value: First, the node is executed with the left value 42 (type long) and the
-     * right value "abc" (String). This specialization matches, and since it is the first execution
-     * it is also the only specialization. Then, the node is executed with the left value "42" (type
-     * long) and the right value "42" (type long). Since this specialization is already present, and
-     * (without the guard) also matches (long values can be boxed to Object), it is executed. The
-     * wrong return value is "false".
+     * We covered all the cases that can return true in the type specializations
+     * above. If we compare two values with different types, the result is known
+     * to be false. <p> Note that the guard is essential for correctness: without
+     * the guard, the specialization would also match when the left and right
+     * value have the same type. The following scenario would return a wrong
+     * value: First, the node is executed with the left value 42 (type long) and
+     * the right value "abc" (String). This specialization matches, and since it
+     * is the first execution it is also the only specialization. Then, the node
+     * is executed with the left value "42" (type long) and the right value "42"
+     * (type long). Since this specialization is already present, and (without the
+     * guard) also matches (long values can be boxed to Object), it is executed.
+     * The wrong return value is "false".
      */
     @Specialization(guards = "differentClasses(left, right)")
     protected boolean equal(Object left, Object right) {

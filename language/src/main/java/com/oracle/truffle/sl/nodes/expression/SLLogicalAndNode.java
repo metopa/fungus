@@ -48,13 +48,11 @@ import com.oracle.truffle.sl.nodes.SLExpressionNode;
  */
 @NodeInfo(shortName = "&&")
 public final class SLLogicalAndNode extends SLShortCircuitNode {
-
-    public SLLogicalAndNode(SLExpressionNode left, SLExpressionNode right) {
-        super(left, right);
-    }
+    public SLLogicalAndNode(SLExpressionNode left, SLExpressionNode right) { super(left, right); }
 
     /**
-     * The right value does not need to be evaluated if the left value is already <code>false</code>
+     * The right value does not need to be evaluated if the left value is already
+     * <code>false</code>
      * .
      */
     @Override
@@ -63,12 +61,12 @@ public final class SLLogicalAndNode extends SLShortCircuitNode {
     }
 
     /**
-     * Only if left and right value are true the result of the logical and is <code>true</code>. If
-     * the second parameter is not evaluated, <code>false</code> is provided.
+     * Only if left and right value are true the result of the logical and is
+     * <code>true</code>. If the second parameter is not evaluated,
+     * <code>false</code> is provided.
      */
     @Override
     protected boolean execute(boolean left, boolean right) {
         return left && right;
     }
-
 }

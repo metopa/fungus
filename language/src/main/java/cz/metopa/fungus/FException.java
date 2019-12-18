@@ -5,7 +5,6 @@ import com.oracle.truffle.api.TruffleException;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.sl.runtime.SLContext;
-
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
@@ -49,8 +48,9 @@ public class FException extends RuntimeException implements TruffleException {
         }
 
         result.append("not defined for (");
-        result.append(Arrays.stream(Arrays.copyOf(values, values.length)).
-                map(Object::toString).collect(Collectors.joining(", ")));
+        result.append(Arrays.stream(Arrays.copyOf(values, values.length))
+                          .map(Object::toString)
+                          .collect(Collectors.joining(", ")));
         result.append(")");
         return new FException(result.toString(), operation, false);
     }

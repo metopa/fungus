@@ -57,9 +57,9 @@ import com.oracle.truffle.sl.runtime.SLUndefinedNameException;
 /**
  * The node for writing a property of an object. When executed, this node:
  * <ol>
- * <li>evaluates the object expression on the left hand side of the object access operator</li>
- * <li>evaluates the property name</li>
- * <li>evaluates the value expression on the right hand side of the assignment operator</li>
+ * <li>evaluates the object expression on the left hand side of the object
+ * access operator</li> <li>evaluates the property name</li> <li>evaluates the
+ * value expression on the right hand side of the assignment operator</li>
  * <li>writes the named property</li>
  * <li>returns the written value</li>
  * </ol>
@@ -69,16 +69,16 @@ import com.oracle.truffle.sl.runtime.SLUndefinedNameException;
 @NodeChild("nameNode")
 @NodeChild("valueNode")
 public abstract class SLWritePropertyNode extends SLExpressionNode {
-
     static final int LIBRARY_LIMIT = 3;
 
     @Specialization(guards = "arrays.hasArrayElements(receiver)", limit = "LIBRARY_LIMIT")
     protected Object write(Object receiver, Object index, Object value,
-                    @CachedLibrary("receiver") InteropLibrary arrays,
-                    @CachedLibrary("index") InteropLibrary numbers) {
+                           @CachedLibrary("receiver") InteropLibrary arrays,
+                           @CachedLibrary("index") InteropLibrary numbers) {
         try {
             arrays.writeArrayElement(receiver, numbers.asLong(index), value);
-        } catch (UnsupportedMessageException | UnsupportedTypeException | InvalidArrayIndexException e) {
+        } catch (UnsupportedMessageException | UnsupportedTypeException |
+                 InvalidArrayIndexException e) {
             // read was not successful. In SL we only have basic support for errors.
             throw SLUndefinedNameException.undefinedProperty(this, index);
         }
@@ -87,15 +87,15 @@ public abstract class SLWritePropertyNode extends SLExpressionNode {
 
     @Specialization(limit = "LIBRARY_LIMIT")
     protected Object write(Object receiver, Object name, Object value,
-                    @CachedLibrary("receiver") InteropLibrary objectLibrary,
-                    @Cached SLToMemberNode asMember) {
+                           @CachedLibrary("receiver") InteropLibrary objectLibrary,
+                           @Cached SLToMemberNode asMember) {
         try {
             objectLibrary.writeMember(receiver, asMember.execute(name), value);
-        } catch (UnsupportedMessageException | UnknownIdentifierException | UnsupportedTypeException e) {
+        } catch (UnsupportedMessageException | UnknownIdentifierException |
+                 UnsupportedTypeException e) {
             // write was not successful. In SL we only have basic support for errors.
             throw SLUndefinedNameException.undefinedProperty(this, name);
         }
         return value;
     }
-
 }

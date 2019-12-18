@@ -55,15 +55,15 @@ import com.oracle.truffle.sl.runtime.SLFunction;
 import com.oracle.truffle.sl.runtime.SLUndefinedNameException;
 
 /**
- * The node for function invocation in SL. Since SL has first class functions, the {@link SLFunction
- * target function} can be computed by an arbitrary expression. This node is responsible for
- * evaluating this expression, as well as evaluating the {@link #argumentNodes arguments}. The
- * actual dispatch is then delegated to a chain of {@link SLDispatchNode} that form a polymorphic
+ * The node for function invocation in SL. Since SL has first class functions,
+ * the {@link SLFunction target function} can be computed by an arbitrary
+ * expression. This node is responsible for evaluating this expression, as well
+ * as evaluating the {@link #argumentNodes arguments}. The actual dispatch is
+ * then delegated to a chain of {@link SLDispatchNode} that form a polymorphic
  * inline cache.
  */
 @NodeInfo(shortName = "invoke")
 public final class SLInvokeNode extends SLExpressionNode {
-
     @Child private SLExpressionNode functionNode;
     @Children private final SLExpressionNode[] argumentNodes;
     @Child private InteropLibrary library;
@@ -80,10 +80,11 @@ public final class SLInvokeNode extends SLExpressionNode {
         Object function = functionNode.executeGeneric(frame);
 
         /*
-         * The number of arguments is constant for one invoke node. During compilation, the loop is
-         * unrolled and the execute methods of all arguments are inlined. This is triggered by the
-         * ExplodeLoop annotation on the method. The compiler assertion below illustrates that the
-         * array length is really constant.
+         * The number of arguments is constant for one invoke node. During
+         * compilation, the loop is unrolled and the execute methods of all
+         * arguments are inlined. This is triggered by the ExplodeLoop annotation on
+         * the method. The compiler assertion below illustrates that the array
+         * length is really constant.
          */
         CompilerAsserts.compilationConstant(argumentNodes.length);
 
@@ -107,5 +108,4 @@ public final class SLInvokeNode extends SLExpressionNode {
         }
         return super.hasTag(tag);
     }
-
 }

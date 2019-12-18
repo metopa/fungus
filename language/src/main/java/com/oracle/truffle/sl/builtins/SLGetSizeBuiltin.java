@@ -53,7 +53,6 @@ import com.oracle.truffle.sl.SLException;
  */
 @NodeInfo(shortName = "getSize")
 public abstract class SLGetSizeBuiltin extends SLBuiltinNode {
-
     @Specialization(limit = "3")
     public Object getSize(Object obj, @CachedLibrary("obj") InteropLibrary arrays) {
         try {

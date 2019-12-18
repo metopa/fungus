@@ -9,13 +9,9 @@ import cz.metopa.fungus.nodes.FExpressionNode;
 public final class FIntConstantNode extends FExpressionNode {
     private final int value;
 
-    public FIntConstantNode(int value) {
-        this.value = value;
-    }
+    public FIntConstantNode(int value) { this.value = value; }
 
-    public FIntConstantNode(String str) {
-        this.value = Integer.parseInt(str);
-    }
+    public FIntConstantNode(String str) { this.value = Integer.parseInt(str); }
 
     @Override
     public Integer executeGeneric(VirtualFrame frame) {

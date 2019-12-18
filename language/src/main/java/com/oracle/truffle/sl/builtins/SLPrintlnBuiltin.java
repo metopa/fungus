@@ -40,27 +40,26 @@
  */
 package com.oracle.truffle.sl.builtins;
 
-import java.io.PrintWriter;
-
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.dsl.CachedContext;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.sl.SLLanguage;
 import com.oracle.truffle.sl.runtime.SLContext;
+import java.io.PrintWriter;
 
 /**
- * Builtin function to write a value to the {@link SLContext#getOutput() standard output}. The
- * different specialization leverage the typed {@code println} methods available in Java, i.e.,
- * primitive values are printed without converting them to a {@link String} first.
- * <p>
- * Printing involves a lot of Java code, so we need to tell the optimizing system that it should not
- * unconditionally inline everything reachable from the println() method. This is done via the
+ * Builtin function to write a value to the {@link SLContext#getOutput()
+ * standard output}. The different specialization leverage the typed {@code
+ * println} methods available in Java, i.e., primitive values are printed
+ * without converting them to a {@link String} first. <p> Printing involves a
+ * lot of Java code, so we need to tell the optimizing system that it should not
+ * unconditionally inline everything reachable from the println() method. This
+ * is done via the
  * {@link TruffleBoundary} annotations.
  */
 @NodeInfo(shortName = "println")
 public abstract class SLPrintlnBuiltin extends SLBuiltinNode {
-
     @Specialization
     public long println(long value, @CachedContext(SLLanguage.class) SLContext context) {
         doPrint(context.getOutput(), value);

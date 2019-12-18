@@ -9,13 +9,9 @@ import cz.metopa.fungus.nodes.FExpressionNode;
 public final class FFloatConstantNode extends FExpressionNode {
     private final float value;
 
-    public FFloatConstantNode(float value) {
-        this.value = value;
-    }
+    public FFloatConstantNode(float value) { this.value = value; }
 
-    public FFloatConstantNode(String str) {
-        this.value = Float.parseFloat(str);
-    }
+    public FFloatConstantNode(String str) { this.value = Float.parseFloat(str); }
 
     @Override
     public Float executeGeneric(VirtualFrame frame) {

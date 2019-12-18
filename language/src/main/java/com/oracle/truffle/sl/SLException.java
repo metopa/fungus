@@ -49,12 +49,11 @@ import com.oracle.truffle.api.source.SourceSection;
 import com.oracle.truffle.sl.runtime.SLContext;
 
 /**
- * SL does not need a sophisticated error checking and reporting mechanism, so all unexpected
- * conditions just abort execution. This exception class is used when we abort from within the SL
- * implementation.
+ * SL does not need a sophisticated error checking and reporting mechanism, so
+ * all unexpected conditions just abort execution. This exception class is used
+ * when we abort from within the SL implementation.
  */
 public class SLException extends RuntimeException implements TruffleException {
-
     private static final long serialVersionUID = -6799734410727348507L;
 
     private final Node location;
@@ -71,13 +70,11 @@ public class SLException extends RuntimeException implements TruffleException {
         return this;
     }
 
-    public Node getLocation() {
-        return location;
-    }
+    public Node getLocation() { return location; }
 
     /**
-     * Provides a user-readable message for run-time type errors. SL is strongly typed, i.e., there
-     * are no automatic type conversions of values.
+     * Provides a user-readable message for run-time type errors. SL is strongly
+     * typed, i.e., there are no automatic type conversions of values.
      */
     @TruffleBoundary
     public static SLException typeError(Node operation, Object... values) {
@@ -87,7 +84,12 @@ public class SLException extends RuntimeException implements TruffleException {
         if (operation != null) {
             SourceSection ss = operation.getEncapsulatingSourceSection();
             if (ss != null && ss.isAvailable()) {
-                result.append(" at ").append(ss.getSource().getName()).append(" line ").append(ss.getStartLine()).append(" col ").append(ss.getStartColumn());
+                result.append(" at ")
+                    .append(ss.getSource().getName())
+                    .append(" line ")
+                    .append(ss.getStartLine())
+                    .append(" col ")
+                    .append(ss.getStartColumn());
             }
         }
 
@@ -122,5 +124,4 @@ public class SLException extends RuntimeException implements TruffleException {
         }
         return new SLException(result.toString(), operation);
     }
-
 }

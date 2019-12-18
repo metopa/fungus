@@ -13,7 +13,7 @@ import cz.metopa.fungus.nodes.FExpressionNode;
 public abstract class FPowNode extends FExpressionNode {
     @Specialization()
     protected float floatEq(float lhs, float rhs) {
-        return (float) Math.pow(lhs, rhs);
+        return (float)Math.pow(lhs, rhs);
     }
 
     @Fallback

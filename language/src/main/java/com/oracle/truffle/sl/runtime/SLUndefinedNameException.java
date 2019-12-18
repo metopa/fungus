@@ -45,7 +45,6 @@ import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.sl.SLException;
 
 public final class SLUndefinedNameException extends SLException {
-
     private static final long serialVersionUID = 1L;
 
     @TruffleBoundary
@@ -58,7 +57,5 @@ public final class SLUndefinedNameException extends SLException {
         throw new SLUndefinedNameException("Undefined property: " + name, location);
     }
 
-    private SLUndefinedNameException(String message, Node node) {
-        super(message, node);
-    }
+    private SLUndefinedNameException(String message, Node node) { super(message, node); }
 }

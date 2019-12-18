@@ -47,20 +47,18 @@ import com.oracle.truffle.sl.nodes.SLStatementNode;
 import com.oracle.truffle.sl.runtime.SLNull;
 
 /**
- * Implementation of the SL return statement. We need to unwind an unknown number of interpreter
- * frames that are between this {@link SLReturnNode} and the {@link SLFunctionBodyNode} of the
- * method we are exiting. This is done by throwing an {@link SLReturnException exception} that is
- * caught by the {@link SLFunctionBodyNode#executeGeneric function body}. The exception transports
+ * Implementation of the SL return statement. We need to unwind an unknown
+ * number of interpreter frames that are between this {@link SLReturnNode} and
+ * the {@link SLFunctionBodyNode} of the method we are exiting. This is done by
+ * throwing an {@link SLReturnException exception} that is caught by the {@link
+ * SLFunctionBodyNode#executeGeneric function body}. The exception transports
  * the return value.
  */
 @NodeInfo(shortName = "return", description = "The node implementing a return statement")
 public final class SLReturnNode extends SLStatementNode {
-
     @Child private SLExpressionNode valueNode;
 
-    public SLReturnNode(SLExpressionNode valueNode) {
-        this.valueNode = valueNode;
-    }
+    public SLReturnNode(SLExpressionNode valueNode) { this.valueNode = valueNode; }
 
     @Override
     public void executeVoid(VirtualFrame frame) {
@@ -69,7 +67,8 @@ public final class SLReturnNode extends SLStatementNode {
             result = valueNode.executeGeneric(frame);
         } else {
             /*
-             * Return statement that was not followed by an expression, so return the SL null value.
+             * Return statement that was not followed by an expression, so return the
+             * SL null value.
              */
             result = SLNull.SINGLETON;
         }

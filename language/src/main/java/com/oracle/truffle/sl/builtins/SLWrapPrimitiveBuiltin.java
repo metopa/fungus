@@ -51,12 +51,12 @@ import com.oracle.truffle.api.library.ReflectionLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
 
 /**
- * Builtin function to wrap primitive values in order to increase coverage of the Truffle TCK test.
+ * Builtin function to wrap primitive values in order to increase coverage of
+ * the Truffle TCK test.
  */
 @NodeInfo(shortName = "wrapPrimitive")
 @SuppressWarnings("unused")
 public abstract class SLWrapPrimitiveBuiltin extends SLBuiltinNode {
-
     @TruffleBoundary
     @Specialization
     public Object doDefault(Object value) {
@@ -69,19 +69,14 @@ public abstract class SLWrapPrimitiveBuiltin extends SLBuiltinNode {
 
     @ExportLibrary(ReflectionLibrary.class)
     static final class PrimitiveValueWrapper implements TruffleObject {
-
         final Object delegate;
 
-        PrimitiveValueWrapper(Object delegate) {
-            this.delegate = delegate;
-        }
+        PrimitiveValueWrapper(Object delegate) { this.delegate = delegate; }
 
         @ExportMessage
         Object send(Message message, Object[] args,
-                        @CachedLibrary("this.delegate") ReflectionLibrary reflection) throws Exception {
+                    @CachedLibrary("this.delegate") ReflectionLibrary reflection) throws Exception {
             return reflection.send(this.delegate, message, args);
         }
-
     }
-
 }

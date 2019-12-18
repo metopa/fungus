@@ -49,16 +49,15 @@ import com.oracle.truffle.sl.nodes.SLStatementNode;
 
 @NodeInfo(shortName = "while", description = "The node implementing a while loop")
 public final class SLWhileNode extends SLStatementNode {
-
     @Child private LoopNode loopNode;
 
     public SLWhileNode(SLExpressionNode conditionNode, SLStatementNode bodyNode) {
-        this.loopNode = Truffle.getRuntime().createLoopNode(new SLWhileRepeatingNode(conditionNode, bodyNode));
+        this.loopNode =
+            Truffle.getRuntime().createLoopNode(new SLWhileRepeatingNode(conditionNode, bodyNode));
     }
 
     @Override
     public void executeVoid(VirtualFrame frame) {
         loopNode.executeLoop(frame);
     }
-
 }

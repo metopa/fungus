@@ -49,12 +49,12 @@ import com.oracle.truffle.sl.nodes.SLBinaryNode;
 import com.oracle.truffle.sl.runtime.SLBigNumber;
 
 /**
- * This class is similar to the extensively documented {@link SLAddNode}. The only difference: the
- * specialized methods return {@code boolean} instead of the input types.
+ * This class is similar to the extensively documented {@link SLAddNode}. The
+ * only difference: the specialized methods return {@code boolean} instead of
+ * the input types.
  */
 @NodeInfo(shortName = "<")
 public abstract class SLLessThanNode extends SLBinaryNode {
-
     @Specialization
     protected boolean lessThan(long left, long right) {
         return left < right;
@@ -70,5 +70,4 @@ public abstract class SLLessThanNode extends SLBinaryNode {
     protected Object typeError(Object left, Object right) {
         throw SLException.typeError(this, left, right);
     }
-
 }

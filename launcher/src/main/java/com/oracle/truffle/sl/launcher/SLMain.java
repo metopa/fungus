@@ -47,14 +47,12 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.PolyglotException;
 import org.graalvm.polyglot.Source;
 import org.graalvm.polyglot.Value;
 
 public final class SLMain {
-
     private static final String SL = "sl";
 
     /**
@@ -85,7 +83,8 @@ public final class SLMain {
         System.exit(executeSource(source, System.in, System.out, options));
     }
 
-    private static int executeSource(Source source, InputStream in, PrintStream out, Map<String, String> options) {
+    private static int executeSource(Source source, InputStream in, PrintStream out,
+                                     Map<String, String> options) {
         Context context;
         PrintStream err = System.err;
         try {
@@ -142,5 +141,4 @@ public final class SLMain {
         options.put(key, value);
         return true;
     }
-
 }

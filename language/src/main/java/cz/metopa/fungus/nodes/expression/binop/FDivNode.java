@@ -25,7 +25,6 @@ public abstract class FDivNode extends FExpressionNode {
         return lhs / rhs;
     }
 
-
     @Specialization
     protected float floatDiv(float lhs, float rhs) {
         if (rhs == 0) {

@@ -7,6 +7,4 @@ import cz.metopa.fungus.nodes.FExpressionNode;
 @NodeChild("lhs")
 @NodeChild("rhs")
 @NodeInfo(shortName = "comparison base")
-public abstract class FComparisonNode extends FExpressionNode {
-
-}
+public abstract class FComparisonNode extends FExpressionNode {}

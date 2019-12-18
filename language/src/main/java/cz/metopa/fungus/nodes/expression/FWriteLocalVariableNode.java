@@ -8,14 +8,13 @@ import com.oracle.truffle.api.frame.FrameSlotKind;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import cz.metopa.fungus.nodes.FExpressionNode;
 
-
 @NodeChild("valueNode")
 @NodeField(name = "slot", type = FrameSlot.class)
 public abstract class FWriteLocalVariableNode extends FExpressionNode {
-
     /**
-     * Returns the descriptor of the accessed local variable. The implementation of this method is
-     * created by the Truffle DSL based on the {@link NodeField} annotation on the class.
+     * Returns the descriptor of the accessed local variable. The implementation
+     * of this method is created by the Truffle DSL based on the {@link NodeField}
+     * annotation on the class.
      */
     protected abstract FrameSlot getSlot();
 
@@ -40,7 +39,7 @@ public abstract class FWriteLocalVariableNode extends FExpressionNode {
         return value;
     }
 
-    @Specialization() //replaces = {"writeBoolean", "writeInt", "writeLong"})
+    @Specialization() // replaces = {"writeBoolean", "writeInt", "writeLong"})
     protected Object write(VirtualFrame frame, Object value) {
         frame.getFrameDescriptor().setFrameSlotKind(getSlot(), FrameSlotKind.Object);
 

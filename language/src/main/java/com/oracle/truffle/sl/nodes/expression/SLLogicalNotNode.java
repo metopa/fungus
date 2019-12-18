@@ -48,13 +48,12 @@ import com.oracle.truffle.sl.SLException;
 import com.oracle.truffle.sl.nodes.SLExpressionNode;
 
 /**
- * Example of a simple unary node that uses type specialization. See {@link SLAddNode} for
- * information on specializations.
+ * Example of a simple unary node that uses type specialization. See {@link
+ * SLAddNode} for information on specializations.
  */
 @NodeChild("valueNode")
 @NodeInfo(shortName = "!")
 public abstract class SLLogicalNotNode extends SLExpressionNode {
-
     @Specialization
     protected boolean doBoolean(boolean value) {
         return !value;
@@ -64,5 +63,4 @@ public abstract class SLLogicalNotNode extends SLExpressionNode {
     protected Object typeError(Object value) {
         throw SLException.typeError(this, value);
     }
-
 }

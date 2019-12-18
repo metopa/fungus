@@ -49,13 +49,12 @@ import com.oracle.truffle.sl.nodes.SLBinaryNode;
 import com.oracle.truffle.sl.runtime.SLBigNumber;
 
 /**
- * This class is similar to the extensively documented {@link SLAddNode}. Divisions by 0 throw the
- * same {@link ArithmeticException exception} as in Java, SL has no special handling for it to keep
- * the code simple.
+ * This class is similar to the extensively documented {@link SLAddNode}.
+ * Divisions by 0 throw the same {@link ArithmeticException exception} as in
+ * Java, SL has no special handling for it to keep the code simple.
  */
 @NodeInfo(shortName = "/")
 public abstract class SLDivNode extends SLBinaryNode {
-
     @Specialization(rewriteOn = ArithmeticException.class)
     protected long div(long left, long right) throws ArithmeticException {
         long result = left / right;

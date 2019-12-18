@@ -40,8 +40,6 @@
  */
 package com.oracle.truffle.sl.nodes;
 
-import java.util.Map;
-
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.RootCallTarget;
@@ -52,20 +50,20 @@ import com.oracle.truffle.api.nodes.RootNode;
 import com.oracle.truffle.sl.SLLanguage;
 import com.oracle.truffle.sl.runtime.SLContext;
 import com.oracle.truffle.sl.runtime.SLNull;
+import java.util.Map;
 
 /**
  * This class performs two additional tasks:
  *
  * <ul>
- * <li>Lazily registration of functions on first execution. This fulfills the semantics of
- * "evaluating" source code in SL.</li>
- * <li>Conversion of arguments to types understood by SL. The SL source code can be evaluated from a
- * different language, i.e., the caller can be a node from a different language that uses types not
- * understood by SL.</li>
+ * <li>Lazily registration of functions on first execution. This fulfills the
+ * semantics of "evaluating" source code in SL.</li> <li>Conversion of arguments
+ * to types understood by SL. The SL source code can be evaluated from a
+ * different language, i.e., the caller can be a node from a different language
+ * that uses types not understood by SL.</li>
  * </ul>
  */
 public final class SLEvalRootNode extends RootNode {
-
     private final Map<String, RootCallTarget> functions;
     @CompilationFinal private boolean registered;
 
@@ -73,7 +71,8 @@ public final class SLEvalRootNode extends RootNode {
 
     @Child private DirectCallNode mainCallNode;
 
-    public SLEvalRootNode(SLLanguage language, RootCallTarget rootFunction, Map<String, RootCallTarget> functions) {
+    public SLEvalRootNode(SLLanguage language, RootCallTarget rootFunction,
+                          Map<String, RootCallTarget> functions) {
         super(null); // internal frame
         this.functions = functions;
         this.mainCallNode = rootFunction != null ? DirectCallNode.create(rootFunction) : null;
@@ -99,14 +98,16 @@ public final class SLEvalRootNode extends RootNode {
     public Object execute(VirtualFrame frame) {
         /* Lazy registrations of functions on first execution. */
         if (!registered) {
-            /* Function registration is a slow-path operation that must not be compiled. */
+            /* Function registration is a slow-path operation that must not be
+             * compiled. */
             CompilerDirectives.transferToInterpreterAndInvalidate();
             reference.get().getFunctionRegistry().register(functions);
             registered = true;
         }
 
         if (mainCallNode == null) {
-            /* The source code did not have a "main" function, so nothing to execute. */
+            /* The source code did not have a "main" function, so nothing to execute.
+             */
             return SLNull.SINGLETON;
         } else {
             /* Conversion of arguments to types understood by SL. */

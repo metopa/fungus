@@ -45,7 +45,6 @@ public abstract class FMultiplicationNode extends FExpressionNode {
         return builder.toString();
     }
 
-
     @Fallback
     protected Object typeError(Object left, Object right) {
         throw FException.typeError(this, left, right);

@@ -54,13 +54,12 @@ import com.oracle.truffle.sl.runtime.SLFunction;
 import com.oracle.truffle.sl.runtime.SLNull;
 
 /**
- * The node to normalize any value to an SL value. This is useful to reduce the number of values
- * expression nodes need to expect.
+ * The node to normalize any value to an SL value. This is useful to reduce the
+ * number of values expression nodes need to expect.
  */
 @TypeSystemReference(SLTypes.class)
 @NodeChild
 public abstract class SLUnboxNode extends SLExpressionNode {
-
     static final int LIMIT = 5;
 
     @Specialization
@@ -99,7 +98,7 @@ public abstract class SLUnboxNode extends SLExpressionNode {
             if (interop.fitsInLong(value)) {
                 return interop.asLong(value);
             } else if (interop.fitsInDouble(value)) {
-                return (long) interop.asDouble(value);
+                return (long)interop.asDouble(value);
             } else if (interop.isString(value)) {
                 return interop.asString(value);
             } else if (interop.isBoolean(value)) {
@@ -112,5 +111,4 @@ public abstract class SLUnboxNode extends SLExpressionNode {
             throw new AssertionError();
         }
     }
-
 }

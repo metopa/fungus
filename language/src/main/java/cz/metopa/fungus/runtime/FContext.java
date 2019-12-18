@@ -3,7 +3,6 @@ package cz.metopa.fungus.runtime;
 import com.oracle.truffle.api.TruffleLanguage.Env;
 import cz.metopa.fungus.FException;
 import cz.metopa.fungus.FLanguage;
-
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -26,20 +25,13 @@ public final class FContext {
         installBuiltins();
     }
 
-    public Env getEnv() {
-        return env;
-    }
+    public Env getEnv() { return env; }
 
-    public BufferedReader getInput() {
-        return input;
-    }
+    public BufferedReader getInput() { return input; }
 
-    public PrintWriter getOutput() {
-        return output;
-    }
+    public PrintWriter getOutput() { return output; }
 
-    private void installBuiltins() {
-    }
+    private void installBuiltins() {}
 
     public FFunction lookupFunction(String name) {
         FFunction func = functionRegistry.get(name);

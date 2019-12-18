@@ -56,22 +56,21 @@ import com.oracle.truffle.sl.runtime.SLUndefinedNameException;
 /**
  * The node for reading a property of an object. When executed, this node:
  * <ol>
- * <li>evaluates the object expression on the left hand side of the object access operator</li>
- * <li>evaluated the property name</li>
- * <li>reads the named property</li>
+ * <li>evaluates the object expression on the left hand side of the object
+ * access operator</li> <li>evaluated the property name</li> <li>reads the named
+ * property</li>
  * </ol>
  */
 @NodeInfo(shortName = ".")
 @NodeChild("receiverNode")
 @NodeChild("nameNode")
 public abstract class SLReadPropertyNode extends SLExpressionNode {
-
     static final int LIBRARY_LIMIT = 3;
 
     @Specialization(guards = "arrays.hasArrayElements(receiver)", limit = "LIBRARY_LIMIT")
     protected Object writeArray(Object receiver, Object index,
-                    @CachedLibrary("receiver") InteropLibrary arrays,
-                    @CachedLibrary("index") InteropLibrary numbers) {
+                                @CachedLibrary("receiver") InteropLibrary arrays,
+                                @CachedLibrary("index") InteropLibrary numbers) {
         try {
             return arrays.readArrayElement(receiver, numbers.asLong(index));
         } catch (UnsupportedMessageException | InvalidArrayIndexException e) {
@@ -82,8 +81,8 @@ public abstract class SLReadPropertyNode extends SLExpressionNode {
 
     @Specialization(guards = "objects.hasMembers(receiver)", limit = "LIBRARY_LIMIT")
     protected Object writeObject(Object receiver, Object name,
-                    @CachedLibrary("receiver") InteropLibrary objects,
-                    @Cached SLToMemberNode asMember) {
+                                 @CachedLibrary("receiver") InteropLibrary objects,
+                                 @Cached SLToMemberNode asMember) {
         try {
             return objects.readMember(receiver, asMember.execute(name));
         } catch (UnsupportedMessageException | UnknownIdentifierException e) {
@@ -91,5 +90,4 @@ public abstract class SLReadPropertyNode extends SLExpressionNode {
             throw SLUndefinedNameException.undefinedProperty(this, name);
         }
     }
-
 }

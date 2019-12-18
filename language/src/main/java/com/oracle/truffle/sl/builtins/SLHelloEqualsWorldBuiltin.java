@@ -50,11 +50,11 @@ import com.oracle.truffle.api.frame.FrameSlot;
 import com.oracle.truffle.api.nodes.NodeInfo;
 
 /**
- * This builtin sets the variable named "hello" in the caller frame to the string "world".
+ * This builtin sets the variable named "hello" in the caller frame to the
+ * string "world".
  */
 @NodeInfo(shortName = "helloEqualsWorld")
 public abstract class SLHelloEqualsWorldBuiltin extends SLBuiltinNode {
-
     @Specialization
     @TruffleBoundary
     public String change() {

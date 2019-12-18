@@ -63,12 +63,10 @@ import com.oracle.truffle.api.object.Shape;
 
 @ExportLibrary(value = InteropLibrary.class, receiverType = DynamicObject.class)
 public final class SLObjectType extends ObjectType {
-
     protected static final int CACHE_LIMIT = 3;
     public static final ObjectType SINGLETON = new SLObjectType();
 
-    private SLObjectType() {
-    }
+    private SLObjectType() {}
 
     @Override
     public Class<?> dispatch() {
@@ -82,7 +80,8 @@ public final class SLObjectType extends ObjectType {
     }
 
     @ExportMessage
-    static boolean removeMember(DynamicObject receiver, String member) throws UnknownIdentifierException {
+    static boolean removeMember(DynamicObject receiver, String member)
+        throws UnknownIdentifierException {
         if (receiver.containsKey(member)) {
             return receiver.delete(member);
         } else {
@@ -93,11 +92,11 @@ public final class SLObjectType extends ObjectType {
     @ExportMessage
     @SuppressWarnings("unused")
     static class GetMembers {
-
         @Specialization(guards = "receiver.getShape() == cachedShape")
-        static Keys doCached(DynamicObject receiver, boolean includeInternal, //
-                        @Cached("receiver.getShape()") Shape cachedShape, //
-                        @Cached(value = "doGeneric(receiver, includeInternal)", allowUncached = true) Keys cachedKeys) {
+        static Keys doCached(DynamicObject receiver, boolean includeInternal,  //
+                             @Cached("receiver.getShape()") Shape cachedShape, //
+                             @Cached(value = "doGeneric(receiver, includeInternal)",
+                                     allowUncached = true) Keys cachedKeys) {
             return cachedKeys;
         }
 
@@ -113,12 +112,13 @@ public final class SLObjectType extends ObjectType {
     @ExportMessage(name = "isMemberRemovable")
     @SuppressWarnings("unused")
     static class ExistsMember {
-
-        @Specialization(guards = {"receiver.getShape() == cachedShape", "cachedMember.equals(member)"})
-        static boolean doCached(DynamicObject receiver, String member,
-                        @Cached("receiver.getShape()") Shape cachedShape,
-                        @Cached("member") String cachedMember,
-                        @Cached("doGeneric(receiver, member)") boolean cachedResult) {
+        @Specialization(guards = {"receiver.getShape() == cachedShape",
+                                  "cachedMember.equals(member)"})
+        static boolean
+        doCached(DynamicObject receiver, String member,
+                 @Cached("receiver.getShape()") Shape cachedShape,
+                 @Cached("member") String cachedMember,
+                 @Cached("doGeneric(receiver, member)") boolean cachedResult) {
             assert cachedResult == doGeneric(receiver, member);
             return cachedResult;
         }
@@ -133,7 +133,7 @@ public final class SLObjectType extends ObjectType {
     @ExportMessage
     @SuppressWarnings("unused")
     static boolean isMemberInsertable(DynamicObject receiver, String member,
-                    @CachedLibrary("receiver") InteropLibrary receivers) {
+                                      @CachedLibrary("receiver") InteropLibrary receivers) {
         return !receivers.isMemberExisting(receiver, member);
     }
 
@@ -143,19 +143,16 @@ public final class SLObjectType extends ObjectType {
 
     @ExportLibrary(InteropLibrary.class)
     static final class Keys implements TruffleObject {
-
         private final Object[] keys;
 
-        Keys(Object[] keys) {
-            this.keys = keys;
-        }
+        Keys(Object[] keys) { this.keys = keys; }
 
         @ExportMessage
         Object readArrayElement(long index) throws InvalidArrayIndexException {
             if (!isArrayElementReadable(index)) {
                 throw InvalidArrayIndexException.create(index);
             }
-            return keys[(int) index];
+            return keys[(int)index];
         }
 
         @SuppressWarnings("static-method")
@@ -178,20 +175,19 @@ public final class SLObjectType extends ObjectType {
     @GenerateUncached
     @ExportMessage
     abstract static class ReadMember {
-
         /**
-         * Polymorphic inline cache for a limited number of distinct property names and shapes.
+         * Polymorphic inline cache for a limited number of distinct property names
+         * and shapes.
          */
         @Specialization(limit = "CACHE_LIMIT", //
-                        guards = {
-                                        "receiver.getShape() == cachedShape",
-                                        "cachedName.equals(name)"
-                        }, //
+                        guards = {"receiver.getShape() == cachedShape",
+                                  "cachedName.equals(name)"}, //
                         assumptions = "cachedShape.getValidAssumption()")
-        static Object readCached(DynamicObject receiver, @SuppressWarnings("unused") String name,
-                        @SuppressWarnings("unused") @Cached("name") String cachedName,
-                        @Cached("receiver.getShape()") Shape cachedShape,
-                        @Cached("lookupLocation(cachedShape, name)") Location location) {
+        static Object
+        readCached(DynamicObject receiver, @SuppressWarnings("unused") String name,
+                   @SuppressWarnings("unused") @Cached("name") String cachedName,
+                   @Cached("receiver.getShape()") Shape cachedShape,
+                   @Cached("lookupLocation(cachedShape, name)") Location location) {
             return location.get(receiver, cachedShape);
         }
 
@@ -209,12 +205,13 @@ public final class SLObjectType extends ObjectType {
         }
 
         /**
-         * The generic case is used if the number of shapes accessed overflows the limit of the
-         * polymorphic inline cache.
+         * The generic case is used if the number of shapes accessed overflows the
+         * limit of the polymorphic inline cache.
          */
         @TruffleBoundary
         @Specialization(replaces = {"readCached"}, guards = "receiver.getShape().isValid()")
-        static Object readUncached(DynamicObject receiver, String name) throws UnknownIdentifierException {
+        static Object readUncached(DynamicObject receiver, String name)
+            throws UnknownIdentifierException {
             Object result = receiver.get(name);
             if (result == null) {
                 /* Property does not exist. */
@@ -224,7 +221,8 @@ public final class SLObjectType extends ObjectType {
         }
 
         @Specialization(guards = "!receiver.getShape().isValid()")
-        static Object updateShape(DynamicObject receiver, String name) throws UnknownIdentifierException {
+        static Object updateShape(DynamicObject receiver, String name)
+            throws UnknownIdentifierException {
             CompilerDirectives.transferToInterpreter();
             receiver.updateShape();
             return readUncached(receiver, name);
@@ -234,61 +232,55 @@ public final class SLObjectType extends ObjectType {
     @GenerateUncached
     @ExportMessage
     abstract static class WriteMember {
-
         /**
-         * Polymorphic inline cache for writing a property that already exists (no shape change is
-         * necessary).
+         * Polymorphic inline cache for writing a property that already exists (no
+         * shape change is necessary).
          */
         @Specialization(limit = "CACHE_LIMIT", //
-                        guards = {
-                                        "cachedName.equals(name)",
-                                        "shapeCheck(shape, receiver)",
-                                        "location != null",
-                                        "canSet(location, value)"
-                        }, //
-                        assumptions = {
-                                        "shape.getValidAssumption()"
-                        })
-        static void writeExistingPropertyCached(DynamicObject receiver, @SuppressWarnings("unused") String name, Object value,
-                        @SuppressWarnings("unused") @Cached("name") String cachedName,
-                        @Cached("receiver.getShape()") Shape shape,
-                        @Cached("lookupLocation(shape, name, value)") Location location) {
+                        guards = {"cachedName.equals(name)", "shapeCheck(shape, receiver)",
+                                  "location != null", "canSet(location, value)"}, //
+                        assumptions = {"shape.getValidAssumption()"})
+        static void
+        writeExistingPropertyCached(DynamicObject receiver, @SuppressWarnings("unused") String name,
+                                    Object value,
+                                    @SuppressWarnings("unused") @Cached("name") String cachedName,
+                                    @Cached("receiver.getShape()") Shape shape,
+                                    @Cached("lookupLocation(shape, name, value)")
+                                    Location location) {
             try {
                 location.set(receiver, value, shape);
 
             } catch (IncompatibleLocationException | FinalLocationException ex) {
-                /* Our guards ensure that the value can be stored, so this cannot happen. */
+                /* Our guards ensure that the value can be stored, so this cannot
+                 * happen. */
                 throw new IllegalStateException(ex);
             }
         }
 
         /**
-         * Polymorphic inline cache for writing a property that does not exist yet (shape change is
-         * necessary).
+         * Polymorphic inline cache for writing a property that does not exist yet
+         * (shape change is necessary).
          */
         @Specialization(limit = "CACHE_LIMIT", //
-                        guards = {
-                                        "cachedName.equals(name)",
-                                        "receiver.getShape() == oldShape",
-                                        "oldLocation == null",
-                                        "canStore(newLocation, value)"
-                        }, //
-                        assumptions = {
-                                        "oldShape.getValidAssumption()",
-                                        "newShape.getValidAssumption()"
-                        })
+                        guards = {"cachedName.equals(name)", "receiver.getShape() == oldShape",
+                                  "oldLocation == null", "canStore(newLocation, value)"}, //
+                        assumptions = {"oldShape.getValidAssumption()",
+                                       "newShape.getValidAssumption()"})
         @SuppressWarnings("unused")
-        static void writeNewPropertyCached(DynamicObject receiver, String name, Object value,
-                        @Cached("name") Object cachedName,
-                        @Cached("receiver.getShape()") Shape oldShape,
-                        @Cached("lookupLocation(oldShape, name, value)") Location oldLocation,
-                        @Cached("defineProperty(oldShape, name, value)") Shape newShape,
-                        @Cached("lookupLocation(newShape, name)") Location newLocation) {
+        static void
+        writeNewPropertyCached(DynamicObject receiver, String name, Object value,
+                               @Cached("name") Object cachedName,
+                               @Cached("receiver.getShape()") Shape oldShape,
+                               @Cached("lookupLocation(oldShape, name, value)")
+                               Location oldLocation,
+                               @Cached("defineProperty(oldShape, name, value)") Shape newShape,
+                               @Cached("lookupLocation(newShape, name)") Location newLocation) {
             try {
                 newLocation.set(receiver, value, oldShape, newShape);
 
             } catch (IncompatibleLocationException ex) {
-                /* Our guards ensure that the value can be stored, so this cannot happen. */
+                /* Our guards ensure that the value can be stored, so this cannot
+                 * happen. */
                 throw new IllegalStateException(ex);
             }
         }
@@ -307,13 +299,14 @@ public final class SLObjectType extends ObjectType {
         }
 
         /**
-         * Try to find the given property in the shape. Also returns null when the value cannot be
-         * store into the location.
+         * Try to find the given property in the shape. Also returns null when the
+         * value cannot be store into the location.
          */
         static Location lookupLocation(Shape shape, String name, Object value) {
             Location location = lookupLocation(shape, name);
             if (location == null || !location.canSet(value)) {
-                /* Existing property has an incompatible type, so a shape change is necessary. */
+                /* Existing property has an incompatible type, so a shape change is
+                 * necessary. */
                 return null;
             }
 
@@ -326,16 +319,17 @@ public final class SLObjectType extends ObjectType {
 
         /**
          * There is a subtle difference between {@link Location#canSet} and
-         * {@link Location#canStore}. We need {@link Location#canSet} for the guard of
-         * {@link #writeExistingPropertyCached} because there we call {@link Location#set}. We use
-         * the more relaxed {@link Location#canStore} for the guard of
-         * {@link SLWritePropertyCacheNode#writeNewPropertyCached} because there we perform a shape
-         * transition, i.e., we are not actually setting the value of the new location - we only
-         * transition to this location as part of the shape change.
+         * {@link Location#canStore}. We need {@link Location#canSet} for the guard
+         * of
+         * {@link #writeExistingPropertyCached} because there we call {@link
+         * Location#set}. We use the more relaxed {@link Location#canStore} for the
+         * guard of
+         * {@link SLWritePropertyCacheNode#writeNewPropertyCached} because there we
+         * perform a shape transition, i.e., we are not actually setting the value
+         * of the new location - we only transition to this location as part of the
+         * shape change.
          */
-        static boolean canSet(Location location, Object value) {
-            return location.canSet(value);
-        }
+        static boolean canSet(Location location, Object value) { return location.canSet(value); }
 
         /** See {@link #canSet} for the difference between the two methods. */
         static boolean canStore(Location location, Object value) {
@@ -343,12 +337,14 @@ public final class SLObjectType extends ObjectType {
         }
 
         /**
-         * The generic case is used if the number of shapes accessed overflows the limit of the
-         * polymorphic inline cache.
+         * The generic case is used if the number of shapes accessed overflows the
+         * limit of the polymorphic inline cache.
          */
         @TruffleBoundary
-        @Specialization(replaces = {"writeExistingPropertyCached", "writeNewPropertyCached"}, guards = {"receiver.getShape().isValid()"})
-        static void writeUncached(DynamicObject receiver, String name, Object value) {
+        @Specialization(replaces = {"writeExistingPropertyCached", "writeNewPropertyCached"},
+                        guards = {"receiver.getShape().isValid()"})
+        static void
+        writeUncached(DynamicObject receiver, String name, Object value) {
             receiver.define(name, value);
         }
 
@@ -356,14 +352,12 @@ public final class SLObjectType extends ObjectType {
         @Specialization(guards = {"!receiver.getShape().isValid()"})
         static void updateShape(DynamicObject receiver, String name, Object value) {
             /*
-             * Slow path that we do not handle in compiled code. But no need to invalidate compiled
-             * code.
+             * Slow path that we do not handle in compiled code. But no need to
+             * invalidate compiled code.
              */
             CompilerDirectives.transferToInterpreter();
             receiver.updateShape();
             writeUncached(receiver, name, value);
         }
-
     }
-
 }

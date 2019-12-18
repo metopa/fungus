@@ -5,7 +5,6 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 
-
 @TypeSystemReference(FTypes.class)
 @NodeInfo(description = "The abstract base node for all expressions")
 public abstract class FExpressionNode extends FStatementNode {

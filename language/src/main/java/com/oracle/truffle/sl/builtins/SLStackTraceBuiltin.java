@@ -55,12 +55,11 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.api.nodes.RootNode;
 
 /**
- * Returns a string representation of the current stack. This includes the {@link CallTarget}s and
- * the contents of the {@link Frame}.
+ * Returns a string representation of the current stack. This includes the
+ * {@link CallTarget}s and the contents of the {@link Frame}.
  */
 @NodeInfo(shortName = "stacktrace")
 public abstract class SLStackTraceBuiltin extends SLBuiltinNode {
-
     @Specialization
     public String trace() {
         return createStackTrace();
@@ -81,7 +80,7 @@ public abstract class SLStackTraceBuiltin extends SLBuiltinNode {
                 }
                 CallTarget callTarget = frameInstance.getCallTarget();
                 Frame frame = frameInstance.getFrame(FrameAccess.READ_ONLY);
-                RootNode rn = ((RootCallTarget) callTarget).getRootNode();
+                RootNode rn = ((RootCallTarget)callTarget).getRootNode();
                 // ignore internal or interop stack frames
                 if (rn.getLanguageInfo() == null) {
                     return 1;
@@ -92,7 +91,10 @@ public abstract class SLStackTraceBuiltin extends SLBuiltinNode {
                 str.append("Frame: ").append(rn.toString());
                 FrameDescriptor frameDescriptor = frame.getFrameDescriptor();
                 for (FrameSlot s : frameDescriptor.getSlots()) {
-                    str.append(", ").append(s.getIdentifier()).append("=").append(frame.getValue(s));
+                    str.append(", ")
+                        .append(s.getIdentifier())
+                        .append("=")
+                        .append(frame.getValue(s));
                 }
                 return null;
             }

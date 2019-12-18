@@ -7,15 +7,14 @@ import com.oracle.truffle.api.nodes.RootNode;
 import com.oracle.truffle.sl.SLLanguage;
 import cz.metopa.fungus.FLanguage;
 
-
 @NodeInfo(language = "Fungus", description = "The root of all Fungus execution trees")
 public class FRootNode extends RootNode {
-    @Child
-    private FExpressionNode bodyNode;
+    @Child private FExpressionNode bodyNode;
 
     private final String name;
 
-    public FRootNode(FLanguage language, FrameDescriptor frameDescriptor, FExpressionNode bodyNode, String name) {
+    public FRootNode(FLanguage language, FrameDescriptor frameDescriptor, FExpressionNode bodyNode,
+                     String name) {
         super(language, frameDescriptor);
         this.bodyNode = bodyNode;
         this.name = name;
@@ -27,9 +26,7 @@ public class FRootNode extends RootNode {
         return bodyNode.executeGeneric(frame);
     }
 
-    public FExpressionNode getBodyNode() {
-        return bodyNode;
-    }
+    public FExpressionNode getBodyNode() { return bodyNode; }
 
     @Override
     public String getName() {

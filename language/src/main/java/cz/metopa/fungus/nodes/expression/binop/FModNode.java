@@ -25,7 +25,6 @@ public abstract class FModNode extends FExpressionNode {
         return lhs % rhs;
     }
 
-
     @Specialization
     protected float floatMod(float lhs, float rhs) {
         if (rhs == 0) {

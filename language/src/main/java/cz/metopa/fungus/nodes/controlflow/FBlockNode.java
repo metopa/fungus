@@ -5,19 +5,15 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import cz.metopa.fungus.nodes.FStatementNode;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 @NodeInfo(shortName = "block", description = "The node implementing a source code block")
 public final class FBlockNode extends FStatementNode {
-    @Children
-    private final FStatementNode[] bodyNodes;
+    @Children private final FStatementNode[] bodyNodes;
 
-    public FBlockNode(FStatementNode[] bodyNodes) {
-        this.bodyNodes = bodyNodes;
-    }
+    public FBlockNode(FStatementNode[] bodyNodes) { this.bodyNodes = bodyNodes; }
 
     @Override
     @ExplodeLoop

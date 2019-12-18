@@ -46,7 +46,6 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.RootNode;
 
 final class SLEvaluateLocalNode extends RootNode {
-
     private final String variable;
     private final MaterializedFrame inspectFrame;
 

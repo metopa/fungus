@@ -48,10 +48,7 @@ import com.oracle.truffle.sl.nodes.SLExpressionNode;
  */
 @NodeInfo(shortName = "||")
 public final class SLLogicalOrNode extends SLShortCircuitNode {
-
-    public SLLogicalOrNode(SLExpressionNode left, SLExpressionNode right) {
-        super(left, right);
-    }
+    public SLLogicalOrNode(SLExpressionNode left, SLExpressionNode right) { super(left, right); }
 
     @Override
     protected boolean isEvaluateRight(boolean left) {
@@ -62,5 +59,4 @@ public final class SLLogicalOrNode extends SLShortCircuitNode {
     protected boolean execute(boolean left, boolean right) {
         return left || right;
     }
-
 }

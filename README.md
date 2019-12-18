@@ -18,7 +18,7 @@
 - [ ] Support control flow nodes
 - [x] Use custom exceptions
 - [ ] Support builtin functions
-- [ ] Add clang-format
+- [x] Add clang-format
 
 ## Fungus Types
 

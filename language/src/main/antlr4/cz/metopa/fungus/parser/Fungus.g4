@@ -185,7 +185,7 @@ expr returns [FExpressionNode result]:
     // parenthesis
     s='(' expr e=')'           { $result = factory.withLocation($expr.result, $s.getStartIndex(),$e.getStopIndex()); } |
     // value access
-    unop                       { $result = $unop.result; } |
+    op=('-' | '+' | '!') expr { $result = factory.createUnOp($op.getText(), $expr.result, $op.getStartIndex(), $expr.result.getStopIndex()); } |
     // user-defined binop
     // expr @op expr           |
     // power
@@ -208,13 +208,10 @@ expr returns [FExpressionNode result]:
                                { $result = factory.createBinOp($op.getText(), $lhs.result, $rhs.result); } |
     // assignment
     <assoc=right>lhs=expr op='=' rhs=expr
-                               { $result = factory.createBinOp($op.getText(), $lhs.result, $rhs.result); }
-    ;
-
-unop returns [FExpressionNode result]:
-    op=('-' | '+' | '!') unop  { $result = factory.createUnOp($op.getText(), $unop.result, $op.getStartIndex(), $unop.result.getStopIndex()); } |
+                               { $result = factory.createBinOp($op.getText(), $lhs.result, $rhs.result); } |
     value                      { $result = $value.result; }
     ;
+
 
 value returns [FExpressionNode result]
 locals [FExpressionNode readOp]:

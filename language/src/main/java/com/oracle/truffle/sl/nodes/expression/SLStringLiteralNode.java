@@ -49,12 +49,9 @@ import com.oracle.truffle.sl.nodes.SLExpressionNode;
  */
 @NodeInfo(shortName = "const")
 public final class SLStringLiteralNode extends SLExpressionNode {
-
     private final String value;
 
-    public SLStringLiteralNode(String value) {
-        this.value = value;
-    }
+    public SLStringLiteralNode(String value) { this.value = value; }
 
     @Override
     public String executeGeneric(VirtualFrame frame) {

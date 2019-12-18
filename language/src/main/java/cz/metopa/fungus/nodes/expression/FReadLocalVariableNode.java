@@ -13,7 +13,6 @@ import cz.metopa.fungus.nodes.FExpressionNode;
 public abstract class FReadLocalVariableNode extends FExpressionNode {
     protected abstract FrameSlot getSlot();
 
-
     //@Specialization(guards = "isBoolean(frame)")
     protected boolean readBoolean(VirtualFrame frame) {
         return FrameUtil.getBooleanSafe(frame, getSlot());
@@ -23,11 +22,12 @@ public abstract class FReadLocalVariableNode extends FExpressionNode {
     protected Object readObject(VirtualFrame frame) {
         if (!frame.isObject(getSlot())) {
             /*
-             * The FrameSlotKind has been set to Object, so from now on all writes to the local
-             * variable will be Object writes. However, now we are in a frame that still has an old
-             * non-Object value. This is a slow-path operation: we read the non-Object value, and
-             * write it immediately as an Object value so that we do not hit this path again
-             * multiple times for the same variable of the same frame.
+             * The FrameSlotKind has been set to Object, so from now on all writes to
+             * the local variable will be Object writes. However, now we are in a
+             * frame that still has an old non-Object value. This is a slow-path
+             * operation: we read the non-Object value, and write it immediately as an
+             * Object value so that we do not hit this path again multiple times for
+             * the same variable of the same frame.
              */
             CompilerDirectives.transferToInterpreter();
             Object result = frame.getValue(getSlot());

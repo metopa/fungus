@@ -53,7 +53,6 @@ import com.oracle.truffle.sl.runtime.SLBigNumber;
  */
 @NodeInfo(shortName = "-")
 public abstract class SLSubNode extends SLBinaryNode {
-
     @Specialization(rewriteOn = ArithmeticException.class)
     protected long sub(long left, long right) {
         return Math.subtractExact(left, right);
@@ -69,5 +68,4 @@ public abstract class SLSubNode extends SLBinaryNode {
     protected Object typeError(Object left, Object right) {
         throw SLException.typeError(this, left, right);
     }
-
 }

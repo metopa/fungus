@@ -8,16 +8,13 @@ import cz.metopa.fungus.FException;
 import cz.metopa.fungus.nodes.FExpressionNode;
 import cz.metopa.fungus.nodes.expression.FFunctionRef;
 import cz.metopa.fungus.runtime.FFunction;
-
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
 @NodeInfo(shortName = "invoke")
 public final class FInvokeNode extends FExpressionNode {
-    @Child
-    private FFunctionRef functionNode;
-    @Children
-    private final FExpressionNode[] argumentNodes;
+    @Child private FFunctionRef functionNode;
+    @Children private final FExpressionNode[] argumentNodes;
 
     public FInvokeNode(FFunctionRef functionNode, FExpressionNode[] argumentNodes) {
         this.functionNode = functionNode;
@@ -35,15 +32,18 @@ public final class FInvokeNode extends FExpressionNode {
             argumentValues[i] = argumentNodes[i].executeGeneric(frame);
         }
 
-        System.out.println(function.getName() + "(" + Arrays.stream(Arrays.copyOf(argumentValues,
-                argumentValues.length)).
-                map(Object::toString).collect(Collectors.joining(", ")) + ")");
+        System.out.println(function.getName() + "(" +
+                           Arrays.stream(Arrays.copyOf(argumentValues, argumentValues.length))
+                               .map(Object::toString)
+                               .collect(Collectors.joining(", ")) +
+                           ")");
 
         Integer parameterCount = function.getParameterCount();
         if (parameterCount != null) {
             if (parameterCount != argumentValues.length) {
-                throw FException.parsingError(function.getName() + " expects " + parameterCount.toString() + " " +
-                        "parameters, provided " + String.valueOf(argumentValues.length));
+                throw FException.parsingError(
+                    function.getName() + " expects " + parameterCount.toString() + " "
+                    + "parameters, provided " + String.valueOf(argumentValues.length));
             }
         }
 

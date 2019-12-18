@@ -54,13 +54,12 @@ import com.oracle.truffle.sl.nodes.SLTypes;
 import com.oracle.truffle.sl.runtime.SLBigNumber;
 
 /**
- * The node to normalize any value to an SL value. This is useful to reduce the number of values
- * expression nodes need to expect.
+ * The node to normalize any value to an SL value. This is useful to reduce the
+ * number of values expression nodes need to expect.
  */
 @TypeSystemReference(SLTypes.class)
 @GenerateUncached
 public abstract class SLToMemberNode extends Node {
-
     static final int LIMIT = 5;
 
     public abstract String execute(Object value) throws UnknownIdentifierException;
@@ -88,14 +87,16 @@ public abstract class SLToMemberNode extends Node {
     }
 
     @Specialization(limit = "LIMIT")
-    protected static String fromInterop(Object value, @CachedLibrary("value") InteropLibrary interop) throws UnknownIdentifierException {
+    protected static String fromInterop(Object value,
+                                        @CachedLibrary("value") InteropLibrary interop)
+        throws UnknownIdentifierException {
         try {
             if (interop.fitsInLong(value)) {
                 return longToString(interop.asLong(value));
             } else if (interop.isString(value)) {
                 return interop.asString(value);
             } else if (interop.isNumber(value) && value instanceof SLBigNumber) {
-                return bigNumberToString((SLBigNumber) value);
+                return bigNumberToString((SLBigNumber)value);
             } else {
                 throw error(value);
             }
@@ -119,5 +120,4 @@ public abstract class SLToMemberNode extends Node {
     private static String longToString(long longValue) {
         return String.valueOf(longValue);
     }
-
 }

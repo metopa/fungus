@@ -40,20 +40,18 @@
  */
 package com.oracle.truffle.sl.runtime;
 
-import java.math.BigInteger;
-
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
+import java.math.BigInteger;
 
 @ExportLibrary(InteropLibrary.class)
 public final class SLBigNumber implements TruffleObject, Comparable<SLBigNumber> {
-
     private static final long LONG_MAX_SAFE_DOUBLE = 9007199254740991L; // 2 ** 53 - 1
-    private static final int INT_MAX_SAFE_FLOAT = 16777215; // 2 ** 24 - 1
+    private static final int INT_MAX_SAFE_FLOAT = 16777215;             // 2 ** 24 - 1
 
     private static boolean inSafeDoubleRange(long l) {
         return l >= -LONG_MAX_SAFE_DOUBLE && l <= LONG_MAX_SAFE_DOUBLE;
@@ -65,17 +63,11 @@ public final class SLBigNumber implements TruffleObject, Comparable<SLBigNumber>
 
     private final BigInteger value;
 
-    public SLBigNumber(BigInteger value) {
-        this.value = value;
-    }
+    public SLBigNumber(BigInteger value) { this.value = value; }
 
-    public SLBigNumber(long value) {
-        this.value = BigInteger.valueOf(value);
-    }
+    public SLBigNumber(long value) { this.value = BigInteger.valueOf(value); }
 
-    public BigInteger getValue() {
-        return value;
-    }
+    public BigInteger getValue() { return value; }
 
     @TruffleBoundary
     public int compareTo(SLBigNumber o) {
@@ -92,7 +84,7 @@ public final class SLBigNumber implements TruffleObject, Comparable<SLBigNumber>
     @TruffleBoundary
     public boolean equals(Object obj) {
         if (obj instanceof SLBigNumber) {
-            return value.equals(((SLBigNumber) obj).getValue());
+            return value.equals(((SLBigNumber)obj).getValue());
         }
         return false;
     }
@@ -203,5 +195,4 @@ public final class SLBigNumber implements TruffleObject, Comparable<SLBigNumber>
             throw UnsupportedMessageException.create();
         }
     }
-
 }

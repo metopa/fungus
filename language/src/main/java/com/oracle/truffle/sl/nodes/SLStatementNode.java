@@ -55,15 +55,14 @@ import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.source.SourceSection;
 
 /**
- * The base class of all Truffle nodes for SL. All nodes (even expressions) can be used as
- * statements, i.e., without returning a value. The {@link VirtualFrame} provides access to the
- * local variables.
+ * The base class of all Truffle nodes for SL. All nodes (even expressions) can
+ * be used as statements, i.e., without returning a value. The {@link
+ * VirtualFrame} provides access to the local variables.
  */
 @NodeInfo(language = "SL", description = "The abstract base node for all SL statements")
 @GenerateWrapper
 @ReportPolymorphism
 public abstract class SLStatementNode extends Node implements InstrumentableNode {
-
     private static final int NO_SOURCE = -1;
     private static final int UNAVAILABLE_SOURCE = -2;
 
@@ -74,12 +73,13 @@ public abstract class SLStatementNode extends Node implements InstrumentableNode
     private boolean hasRootTag;
 
     /*
-     * The creation of source section can be implemented lazily by looking up the root node source
-     * and then creating the source section object using the indices stored in the node. This avoids
-     * the eager creation of source section objects during parsing and creates them only when they
-     * are needed. Alternatively, if the language uses source sections to implement language
-     * semantics, then it might be more efficient to eagerly create source sections and store it in
-     * the AST.
+     * The creation of source section can be implemented lazily by looking up the
+     * root node source and then creating the source section object using the
+     * indices stored in the node. This avoids the eager creation of source
+     * section objects during parsing and creates them only when they are needed.
+     * Alternatively, if the language uses source sections to implement language
+     * semantics, then it might be more efficient to eagerly create source
+     * sections and store it in the AST.
      *
      * For more details see {@link InstrumentableNode}.
      */
@@ -107,25 +107,15 @@ public abstract class SLStatementNode extends Node implements InstrumentableNode
         }
     }
 
-    public final boolean hasSource() {
-        return sourceCharIndex != NO_SOURCE;
-    }
+    public final boolean hasSource() { return sourceCharIndex != NO_SOURCE; }
 
-    public final boolean isInstrumentable() {
-        return hasSource();
-    }
+    public final boolean isInstrumentable() { return hasSource(); }
 
-    public final int getSourceCharIndex() {
-        return sourceCharIndex;
-    }
+    public final int getSourceCharIndex() { return sourceCharIndex; }
 
-    public final int getSourceEndIndex() {
-        return sourceCharIndex + sourceLength;
-    }
+    public final int getSourceEndIndex() { return sourceCharIndex + sourceLength; }
 
-    public final int getSourceLength() {
-        return sourceLength;
-    }
+    public final int getSourceLength() { return sourceLength; }
 
     // invoked by the parser to set the source
     public final void setSourceSection(int charIndex, int length) {
@@ -163,19 +153,16 @@ public abstract class SLStatementNode extends Node implements InstrumentableNode
     public abstract void executeVoid(VirtualFrame frame);
 
     /**
-     * Marks this node as being a {@link StandardTags.StatementTag} for instrumentation purposes.
+     * Marks this node as being a {@link StandardTags.StatementTag} for
+     * instrumentation purposes.
      */
-    public final void addStatementTag() {
-        hasStatementTag = true;
-    }
+    public final void addStatementTag() { hasStatementTag = true; }
 
     /**
-     * Marks this node as being a {@link StandardTags.RootTag} and {@link StandardTags.RootBodyTag}
-     * for instrumentation purposes.
+     * Marks this node as being a {@link StandardTags.RootTag} and {@link
+     * StandardTags.RootBodyTag} for instrumentation purposes.
      */
-    public final void addRootTag() {
-        hasRootTag = true;
-    }
+    public final void addRootTag() { hasRootTag = true; }
 
     @Override
     public String toString() {
@@ -183,9 +170,10 @@ public abstract class SLStatementNode extends Node implements InstrumentableNode
     }
 
     /**
-     * Formats a source section of a node in human readable form. If no source section could be
-     * found it looks up the parent hierarchy until it finds a source section. Nodes where this was
-     * required append a <code>'~'</code> at the end.
+     * Formats a source section of a node in human readable form. If no source
+     * section could be found it looks up the parent hierarchy until it finds a
+     * source section. Nodes where this was required append a <code>'~'</code> at
+     * the end.
      *
      * @param node the node to format.
      * @return a formatted source section string
@@ -210,11 +198,7 @@ public abstract class SLStatementNode extends Node implements InstrumentableNode
         }
     }
 
-    public int getStartIndex() {
-        return getSourceCharIndex();
-    }
+    public int getStartIndex() { return getSourceCharIndex(); }
 
-    public int getStopIndex() {
-        return getSourceEndIndex();
-    }
+    public int getStopIndex() { return getSourceEndIndex(); }
 }

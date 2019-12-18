@@ -51,10 +51,11 @@ import com.oracle.truffle.sl.builtins.SLBuiltinNode;
 import com.oracle.truffle.sl.nodes.controlflow.SLFunctionBodyNode;
 
 /**
- * The root of all SL execution trees. It is a Truffle requirement that the tree root extends the
- * class {@link RootNode}. This class is used for both builtin and user-defined functions. For
- * builtin functions, the {@link #bodyNode} is a subclass of {@link SLBuiltinNode}. For user-defined
- * functions, the {@link #bodyNode} is a {@link SLFunctionBodyNode}.
+ * The root of all SL execution trees. It is a Truffle requirement that the tree
+ * root extends the class {@link RootNode}. This class is used for both builtin
+ * and user-defined functions. For builtin functions, the {@link #bodyNode} is a
+ * subclass of {@link SLBuiltinNode}. For user-defined functions, the {@link
+ * #bodyNode} is a {@link SLFunctionBodyNode}.
  */
 @NodeInfo(language = "SL", description = "The root of all SL execution trees")
 public class SLRootNode extends RootNode {
@@ -68,7 +69,8 @@ public class SLRootNode extends RootNode {
 
     private final SourceSection sourceSection;
 
-    public SLRootNode(SLLanguage language, FrameDescriptor frameDescriptor, SLExpressionNode bodyNode, SourceSection sourceSection, String name) {
+    public SLRootNode(SLLanguage language, FrameDescriptor frameDescriptor,
+                      SLExpressionNode bodyNode, SourceSection sourceSection, String name) {
         super(language, frameDescriptor);
         this.bodyNode = bodyNode;
         this.name = name;
@@ -86,9 +88,7 @@ public class SLRootNode extends RootNode {
         return bodyNode.executeGeneric(frame);
     }
 
-    public SLExpressionNode getBodyNode() {
-        return bodyNode;
-    }
+    public SLExpressionNode getBodyNode() { return bodyNode; }
 
     @Override
     public String getName() {

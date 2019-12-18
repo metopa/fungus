@@ -8,9 +8,7 @@ import cz.metopa.fungus.nodes.FExpressionNode;
 public final class FStringConstantNode extends FExpressionNode {
     private final String value;
 
-    public FStringConstantNode(String value) {
-        this.value = value;
-    }
+    public FStringConstantNode(String value) { this.value = value; }
 
     @Override
     public String executeGeneric(VirtualFrame frame) {

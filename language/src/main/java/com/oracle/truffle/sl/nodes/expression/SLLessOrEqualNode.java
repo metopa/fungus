@@ -53,7 +53,6 @@ import com.oracle.truffle.sl.runtime.SLBigNumber;
  */
 @NodeInfo(shortName = "<=")
 public abstract class SLLessOrEqualNode extends SLBinaryNode {
-
     @Specialization
     protected boolean lessOrEqual(long left, long right) {
         return left <= right;
