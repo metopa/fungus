@@ -53,13 +53,7 @@ import com.oracle.truffle.api.interop.UnknownIdentifierException;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
-import com.oracle.truffle.api.object.DynamicObject;
-import com.oracle.truffle.api.object.FinalLocationException;
-import com.oracle.truffle.api.object.IncompatibleLocationException;
-import com.oracle.truffle.api.object.Location;
-import com.oracle.truffle.api.object.ObjectType;
-import com.oracle.truffle.api.object.Property;
-import com.oracle.truffle.api.object.Shape;
+import com.oracle.truffle.api.object.*;
 
 @ExportLibrary(value = InteropLibrary.class, receiverType = DynamicObject.class)
 public final class SLObjectType extends ObjectType {
@@ -238,15 +232,17 @@ public final class SLObjectType extends ObjectType {
          */
         @Specialization(limit = "CACHE_LIMIT", //
                         guards = {"cachedName.equals(name)", "shapeCheck(shape, receiver)",
-                                  "location != null", "canSet(location, value)"}, //
+                                  "location != null",
+                                  "canSet"
+                                      + "(location, value)"}, //
                         assumptions = {"shape.getValidAssumption()"})
         static void
         writeExistingPropertyCached(DynamicObject receiver, @SuppressWarnings("unused") String name,
                                     Object value,
                                     @SuppressWarnings("unused") @Cached("name") String cachedName,
                                     @Cached("receiver.getShape()") Shape shape,
-                                    @Cached("lookupLocation(shape, name, value)")
-                                    Location location) {
+                                    @Cached("lookupLocation"
+                                            + "(shape, name, value)") Location location) {
             try {
                 location.set(receiver, value, shape);
 
@@ -271,8 +267,8 @@ public final class SLObjectType extends ObjectType {
         writeNewPropertyCached(DynamicObject receiver, String name, Object value,
                                @Cached("name") Object cachedName,
                                @Cached("receiver.getShape()") Shape oldShape,
-                               @Cached("lookupLocation(oldShape, name, value)")
-                               Location oldLocation,
+                               @Cached("lookupLocation"
+                                       + "(oldShape, name, value)") Location oldLocation,
                                @Cached("defineProperty(oldShape, name, value)") Shape newShape,
                                @Cached("lookupLocation(newShape, name)") Location newLocation) {
             try {
@@ -285,7 +281,9 @@ public final class SLObjectType extends ObjectType {
             }
         }
 
-        /** Try to find the given property in the shape. */
+        /**
+         * Try to find the given property in the shape.
+         */
         static Location lookupLocation(Shape shape, String name) {
             CompilerAsserts.neverPartOfCompilation();
 
@@ -331,7 +329,9 @@ public final class SLObjectType extends ObjectType {
          */
         static boolean canSet(Location location, Object value) { return location.canSet(value); }
 
-        /** See {@link #canSet} for the difference between the two methods. */
+        /**
+         * See {@link #canSet} for the difference between the two methods.
+         */
         static boolean canStore(Location location, Object value) {
             return location.canStore(value);
         }
@@ -342,7 +342,8 @@ public final class SLObjectType extends ObjectType {
          */
         @TruffleBoundary
         @Specialization(replaces = {"writeExistingPropertyCached", "writeNewPropertyCached"},
-                        guards = {"receiver.getShape().isValid()"})
+                        guards = {"receiver"
+                                  + ".getShape().isValid()"})
         static void
         writeUncached(DynamicObject receiver, String name, Object value) {
             receiver.define(name, value);

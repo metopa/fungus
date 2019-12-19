@@ -1,6 +1,7 @@
 package cz.metopa.fungus.builtin;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.nodes.NodeInfo;
 import cz.metopa.fungus.FException;
 import cz.metopa.fungus.nodes.FExpressionNode;
 import cz.metopa.fungus.parser.FNodeFactory;
@@ -8,6 +9,7 @@ import java.util.Arrays;
 import java.util.Formatter;
 import java.util.IllegalFormatConversionException;
 
+@NodeInfo(shortName = "format")
 public class FFormatBuiltin extends FExpressionNode {
 
     private FFormatBuiltin() {}

@@ -40,11 +40,7 @@
  */
 package com.oracle.truffle.sl.runtime;
 
-import com.oracle.truffle.api.Assumption;
-import com.oracle.truffle.api.CallTarget;
-import com.oracle.truffle.api.RootCallTarget;
-import com.oracle.truffle.api.Truffle;
-import com.oracle.truffle.api.TruffleLogger;
+import com.oracle.truffle.api.*;
 import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.interop.InteropLibrary;
@@ -84,10 +80,14 @@ public final class SLFunction implements TruffleObject {
     private static final TruffleLogger LOG =
         TruffleLogger.getLogger(SLLanguage.ID, SLFunction.class);
 
-    /** The name of the function. */
+    /**
+     * The name of the function.
+     */
     private final String name;
 
-    /** The current implementation of this function. */
+    /**
+     * The current implementation of this function.
+     */
     private RootCallTarget callTarget;
 
     /**
@@ -189,13 +189,12 @@ public final class SLFunction implements TruffleObject {
          * optimized execution.
          * </p>
          *
+         * @param function       the dynamically provided function
+         * @param cachedFunction the cached function of the specialization instance
+         * @param callNode       the {@link DirectCallNode} specifically created for the
+         *                       {@link CallTarget} in cachedFunction.
          * @see Cached
          * @see Specialization
-         *
-         * @param function the dynamically provided function
-         * @param cachedFunction the cached function of the specialization instance
-         * @param callNode the {@link DirectCallNode} specifically created for the
-         *            {@link CallTarget} in cachedFunction.
          */
         @Specialization(limit = "INLINE_CACHE_SIZE",                         //
                         guards = "function.getCallTarget() == cachedTarget", //
@@ -203,7 +202,8 @@ public final class SLFunction implements TruffleObject {
         @SuppressWarnings("unused")
         protected static Object
         doDirect(SLFunction function, Object[] arguments,
-                 @Cached("function.getCallTargetStable()") Assumption callTargetStable,
+                 @Cached("function"
+                         + ".getCallTargetStable()") Assumption callTargetStable,
                  @Cached("function.getCallTarget()") RootCallTarget cachedTarget,
                  @Cached("create(cachedTarget)") DirectCallNode callNode) {
             /* Inline cache hit, we are safe to execute the cached call target. */

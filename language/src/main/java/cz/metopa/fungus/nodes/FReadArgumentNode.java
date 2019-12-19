@@ -3,7 +3,6 @@ package cz.metopa.fungus.nodes;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.profiles.BranchProfile;
 import cz.metopa.fungus.FException;
-import cz.metopa.fungus.nodes.FExpressionNode;
 
 public class FReadArgumentNode extends FExpressionNode {
     private final int index;

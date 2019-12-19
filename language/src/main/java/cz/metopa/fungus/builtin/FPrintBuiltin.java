@@ -1,11 +1,13 @@
 package cz.metopa.fungus.builtin;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.nodes.NodeInfo;
 import cz.metopa.fungus.nodes.FExpressionNode;
 import cz.metopa.fungus.parser.FNodeFactory;
 import cz.metopa.fungus.runtime.FNull;
 import java.util.Objects;
 
+@NodeInfo(shortName = "print")
 public class FPrintBuiltin extends FExpressionNode {
     private final boolean lineEnd;
     private final boolean delimiter;

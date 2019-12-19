@@ -122,10 +122,10 @@ public abstract class SLWriteLocalVariableNode extends SLExpressionNode {
      * Guard function that the local variable has the type {@code long}.
      *
      * @param frame The parameter seems unnecessary, but it is required: Without
-     *     the parameter, the
-     *            Truffle DSL would not check the guard on every execution of the
-     * specialization. Guards without parameters are assumed to be pure, but our
-     * guard depends on the slot kind which can change.
+     *              the parameter, the
+     *              Truffle DSL would not check the guard on every execution of the
+     *              specialization. Guards without parameters are assumed to be pure, but our
+     *              guard depends on the slot kind which can change.
      */
     protected boolean isLongOrIllegal(VirtualFrame frame) {
         final FrameSlotKind kind = frame.getFrameDescriptor().getFrameSlotKind(getSlot());

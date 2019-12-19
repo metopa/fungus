@@ -61,7 +61,9 @@ import com.oracle.truffle.sl.runtime.SLFunctionRegistry;
  */
 @NodeInfo(shortName = "func")
 public final class SLFunctionLiteralNode extends SLExpressionNode {
-    /** The name of the function. */
+    /**
+     * The name of the function.
+     */
     private final String functionName;
 
     /**

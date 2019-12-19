@@ -8,8 +8,6 @@ import cz.metopa.fungus.FException;
 import cz.metopa.fungus.nodes.FExpressionNode;
 import cz.metopa.fungus.nodes.expression.FFunctionRef;
 import cz.metopa.fungus.runtime.FFunction;
-import java.util.Arrays;
-import java.util.stream.Collectors;
 
 @NodeInfo(shortName = "invoke")
 public final class FInvokeNode extends FExpressionNode {

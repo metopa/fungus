@@ -59,10 +59,14 @@ import com.oracle.truffle.sl.nodes.controlflow.SLFunctionBodyNode;
  */
 @NodeInfo(language = "SL", description = "The root of all SL execution trees")
 public class SLRootNode extends RootNode {
-    /** The function body that is executed, and specialized during execution. */
+    /**
+     * The function body that is executed, and specialized during execution.
+     */
     @Child private SLExpressionNode bodyNode;
 
-    /** The name of the function, for printing purposes only. */
+    /**
+     * The name of the function, for printing purposes only.
+     */
     private final String name;
 
     @CompilationFinal private boolean isCloningAllowed;

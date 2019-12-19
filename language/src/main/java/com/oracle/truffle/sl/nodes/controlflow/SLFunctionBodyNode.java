@@ -58,7 +58,9 @@ import com.oracle.truffle.sl.runtime.SLNull;
  */
 @NodeInfo(shortName = "body")
 public final class SLFunctionBodyNode extends SLExpressionNode {
-    /** The body of the function. */
+    /**
+     * The body of the function.
+     */
     @Child private SLStatementNode bodyNode;
 
     /**

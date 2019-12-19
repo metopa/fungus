@@ -55,7 +55,9 @@ import com.oracle.truffle.sl.runtime.SLNull;
  * SLNodeFactory#addFormalParameter in the method prologue}.
  */
 public class SLReadArgumentNode extends SLExpressionNode {
-    /** The argument number, i.e., the index into the array of arguments. */
+    /**
+     * The argument number, i.e., the index into the array of arguments.
+     */
     private final int index;
 
     /**
