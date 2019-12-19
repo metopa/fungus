@@ -23,7 +23,7 @@
 - [x] Bool conversion support
 - [x] Null comparison support
 - [x] Support assert expression
-- [ ] Add testing script
+- [x] Add testing script
 
 ## Fungus Types
 

@@ -1,18 +1,3 @@
-/*
-Features:
-- function declaration
-- local variable declaration
-- string, int, and boolean constants
-- binary operators (% == = < +)
-- unary operations (!)
-- function call
-- block declaration
-- while statement
-- if statement
-- build-in print function
-- int conversion for print
-*/
-
 func fizz_buzz(i) {
     var printed = false;
     if (i % 3 == 0) {
@@ -30,9 +15,7 @@ func fizz_buzz(i) {
 }
 
 func main() {
-    var i = 0;
-    while (i < 20) {
+    for (var i = 1; i <= 30; i = i + 1) {
         fizz_buzz(i);
-        i = i + 1;
     }
 }
