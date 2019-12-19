@@ -21,16 +21,7 @@ func fib() {
     printsln(c, a, b, i);
 }
 
-func max(a, b) {
-    if (a > b) {
-        return a;
-    } else {
-        if (b != "aa") {
-            return b;
-        }
-    }
-}
 
 func main() {
-    printsln(max(9, 10), max(10, 10), max(11, 10));
+    printsln(max(10, 9), max(0.9, 1.E3));
 }

@@ -4,8 +4,10 @@ import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.TruffleLanguage.ContextPolicy;
 import com.oracle.truffle.api.source.Source;
+import cz.metopa.fungus.builtin.FBuiltinNode;
 import cz.metopa.fungus.builtin.FFormatBuiltin;
 import cz.metopa.fungus.builtin.FPrintBuiltin;
+import cz.metopa.fungus.builtin.FReadBuiltin;
 import cz.metopa.fungus.builtin.type_conversion.FTypeConversionNode;
 import cz.metopa.fungus.parser.FNodeFactory;
 import cz.metopa.fungus.parser.FungusParser;
@@ -33,7 +35,7 @@ public final class FLanguage extends TruffleLanguage<FContext> {
         Source source = request.getSource();
         FContext ctx = getContextReference().get();
         FNodeFactory factory = new FNodeFactory(this, source);
-        registerBuiltins(factory);
+        FBuiltinNode.register(factory);
         Map<String, FFunction> functions = FungusParser.parseLanguage(this, source, factory);
         functions.forEach((name, func) -> ctx.registerFunction(func));
 
@@ -48,11 +50,5 @@ public final class FLanguage extends TruffleLanguage<FContext> {
     @Override
     protected boolean isObjectOfLanguage(Object object) {
         return false;
-    }
-
-    private void registerBuiltins(FNodeFactory factory) {
-        FPrintBuiltin.register(factory);
-        FFormatBuiltin.register(factory);
-        FTypeConversionNode.register(factory);
     }
 }

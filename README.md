@@ -77,17 +77,17 @@
   - `while`
   
 - Standard functions
-  - `print`
+  - `print*`
   - `read`
-  - `open`
-  - `close`
+  - `format`
   - `min`
   - `max`
   - `sqrt`
   - `rand`
   - `now`
-  - `format`
   - `type`
+  - `open`
+  - `close`
   - Type conversions
     - `bool`
     - `int`

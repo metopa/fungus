@@ -6,6 +6,7 @@ import com.oracle.truffle.api.frame.FrameSlot;
 import com.oracle.truffle.api.source.Source;
 import cz.metopa.fungus.FException;
 import cz.metopa.fungus.FLanguage;
+import cz.metopa.fungus.builtin.FBuiltinNode;
 import cz.metopa.fungus.nodes.FExpressionNode;
 import cz.metopa.fungus.nodes.FReadArgumentNode;
 import cz.metopa.fungus.nodes.FRootNode;
@@ -25,6 +26,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import org.antlr.v4.runtime.Token;
 import org.apache.commons.text.StringEscapeUtils;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
@@ -82,12 +84,14 @@ public class FNodeFactory {
     private final Source source;
     private final FLanguage language;
     private final Map<String, FFunction> allFunctions;
+    private final Map<String, Function<List<FExpressionNode>, FExpressionNode>> builtins;
     private LexicalScope currentScope;
 
     public FNodeFactory(FLanguage language, Source source) {
         this.language = language;
         this.source = source;
         this.allFunctions = new HashMap<>();
+        this.builtins = new HashMap<>();
     }
 
     public Map<String, FFunction> getAllFunctions() { return allFunctions; }
@@ -136,11 +140,22 @@ public class FNodeFactory {
     public void registerFunction(String name, Integer parameterCount, FExpressionNode rootStatement,
                                  FrameDescriptor frameDescriptor) {
         final FRootNode rootNode = new FRootNode(language, frameDescriptor, rootStatement, name);
+        if (builtins.containsKey(name)) {
+            throw FException.parsingError("builtin " + name + " redefined");
+        }
         if (allFunctions.containsKey(name)) {
             throw FException.parsingError(name + " redefined");
         }
         allFunctions.put(name, new FFunction(name, Truffle.getRuntime().createCallTarget(rootNode),
                                              parameterCount));
+    }
+
+    public void registerBuiltin(String name,
+                                Function<List<FExpressionNode>, FExpressionNode> factory) {
+        if (builtins.containsKey(name)) {
+            throw FException.internalError("builtin " + name + " redefined");
+        }
+        builtins.put(name, factory);
     }
 
     public void startBlock() {
@@ -182,6 +197,9 @@ public class FNodeFactory {
 
     public FStatementNode declareVariable(String name, FExpressionNode initialValue, int startIndex,
                                           int stopIndex) {
+        if (builtins.containsKey(name)) {
+            throw FException.parsingError("builtin " + name + " redefined");
+        }
         FrameSlot slot = currentScope.addSlot(name);
         return FWriteLocalVariableNodeGen.create(initialValue, slot);
     }
@@ -252,6 +270,10 @@ public class FNodeFactory {
 
     public FExpressionNode createCall(String funcName, List<FExpressionNode> arguments,
                                       int startIndex, int stopIndex) {
+        if (builtins.containsKey(funcName)) {
+            return builtins.get(funcName).apply(arguments);
+        }
+
         final FFunctionRef funcNode = new FFunctionRef(language, funcName);
         final FExpressionNode result =
             new FInvokeNode(funcNode, arguments.toArray(new FExpressionNode[0]));

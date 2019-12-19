@@ -3,36 +3,29 @@ package cz.metopa.fungus.builtin;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import cz.metopa.fungus.nodes.FExpressionNode;
-import cz.metopa.fungus.parser.FNodeFactory;
 import cz.metopa.fungus.runtime.FNull;
-import java.util.Objects;
 
 @NodeInfo(shortName = "print")
-public class FPrintBuiltin extends FExpressionNode {
+public class FPrintBuiltin extends FBuiltinNode {
     private final boolean lineEnd;
-    private final boolean delimiter;
+    private final boolean useDelimiter;
+    @Children private final FExpressionNode[] children;
 
-    private FPrintBuiltin(boolean lineEnd, boolean delimiter) {
+    public FPrintBuiltin(boolean lineEnd, boolean useDelimiter, FExpressionNode... children) {
         this.lineEnd = lineEnd;
-        this.delimiter = delimiter;
+        this.useDelimiter = useDelimiter;
+        this.children = children;
     }
 
-    public static void register(FNodeFactory factory) {
-        factory.registerFunction("print", null, new FPrintBuiltin(false, false), null);
-        factory.registerFunction("println", null, new FPrintBuiltin(true, false), null);
-        factory.registerFunction("prints", null, new FPrintBuiltin(false, true), null);
-        factory.registerFunction("printsln", null, new FPrintBuiltin(true, true), null);
-    }
-
-    @Override
     public Object executeGeneric(VirtualFrame frame) {
-        Object[] args = frame.getArguments();
-        for (int i = 0; i < args.length; i++) {
-            if (delimiter && i > 0) {
+        Object[] values = executeChildren(frame, children);
+
+        for (int i = 0; i < children.length; i++) {
+            if (useDelimiter && i > 0) {
                 System.out.print(" ");
             }
 
-            System.out.print(Objects.toString(args[i]));
+            System.out.print(values[i]);
         }
 
         if (lineEnd) {
