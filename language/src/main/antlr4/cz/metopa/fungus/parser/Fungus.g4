@@ -17,6 +17,7 @@ import cz.metopa.fungus.nodes.controlflow.FBlockNode;
 import cz.metopa.fungus.nodes.controlflow.FFunctionBodyNode;
 import cz.metopa.fungus.nodes.controlflow.FInvokeNode;
 import cz.metopa.fungus.nodes.expression.FFunctionRef;
+import cz.metopa.fungus.nodes.expression.FWriteLocalVariableNode;
 import cz.metopa.fungus.nodes.FReadArgumentNode;
 import cz.metopa.fungus.nodes.expression.constants.FStringConstantNode;
 import cz.metopa.fungus.runtime.FFunction;
@@ -125,7 +126,8 @@ stmt[boolean inLoop] returns [FStatementNode result]:
     {$inLoop}? break_stmt      { $result = $break_stmt.result;    } |
     {$inLoop}? continue_stmt   { $result = $continue_stmt.result; } |
     var_decl e=';'             { $result = factory.withLocation($var_decl.result, $var_decl.result.getStartIndex(), $e.getStopIndex()); } |
-    expr e=';'                 { $result = factory.withLocation($expr.result, $expr.result.getStartIndex(), $e.getStopIndex()); }
+    expr e=';'                 { $result = factory.withLocation($expr.result, $expr.result.getStartIndex(), $e.getStopIndex()); } |
+    assignment_expr e=';'      { $result = factory.withLocation($assignment_expr.result, $assignment_expr.result.getStartIndex(), $e.getStopIndex()); }
     ;
 
 if_block[boolean inLoop] returns [FStatementNode result]
@@ -146,20 +148,30 @@ while_block returns [FStatementNode result]:
 for_block returns [FStatementNode result]
 locals [FStatementNode  prologue,
         FExpressionNode condition,
-        FExpressionNode postIter]:
-    s='for' '(' (for_prologue  { $prologue = $for_prologue.result; })? ';'
-              (expr            { $condition = $expr.result;        })? ';'
-              (expr            { $postIter = $expr.result;         })? ')'
+        FStatementNode postIter]:
+    s='for' '(' (for_prologue  { $prologue = $for_prologue.result;  })? ';'
+              (expr            { $condition = $expr.result;         })? ';'
+              (for_post_iter   { $postIter = $for_post_iter.result; })? ')'
         body=block[true]       { $result = factory.createFor($prologue, $condition, $postIter, $body.result, $s.getStartIndex(), $body.result.getStopIndex()); }
     ;
 
 for_prologue returns [FStatementNode result]:
     var_decl                   { $result = $var_decl.result; } |
-    expr                       { $result = $expr.result;     }
+    expr                       { $result = $expr.result;     } |
+    assignment_expr            { $result = $assignment_expr.result; }
     ;
 
-var_decl returns [FStatementNode result]:
-    s='var' IDENT '=' expr     { $result = factory.declareVariable($IDENT.getText(), $expr.result, $s.getStartIndex(), $expr.result.getStopIndex()); }
+for_post_iter returns [FStatementNode result]:
+    expr                       { $result = $expr.result;     } |
+    assignment_expr            { $result = $assignment_expr.result; }
+    ;
+
+var_decl returns [FStatementNode result]
+locals [FExpressionNode initValue]:
+    s='var' IDENT ('=' expr { $initValue = $expr.result; } |
+                            { $initValue = factory.createNullLiteral($IDENT); } )
+                            { $result = factory.declareVariable($IDENT.getText(), $initValue,
+                                        $s.getStartIndex(), $initValue.getStopIndex()); }
     ;
 
 return_stmt returns [FStatementNode result]
@@ -169,7 +181,7 @@ locals [FExpressionNode retval]:
     ;
 
 assert_stmt returns [FStatementNode result]:
-    s='assert' '(' expr ')' e=';'
+    s='assert' '(' expr e=')'
                                { $result = factory.createAssert($expr.result, $s.getStartIndex(), $e.getStopIndex()); }
     ;
 
@@ -179,6 +191,10 @@ break_stmt returns [FStatementNode result]:
 
 continue_stmt returns [FStatementNode result]:
     s='continue' e=';'         { $result = factory.createContinue($s.getStartIndex(), $e.getStopIndex()); }
+    ;
+
+assignment_expr returns [FWriteLocalVariableNode result]:
+    IDENT '=' expr             { $result = factory.createAssignment($IDENT.getText(), $expr.result, $IDENT.getStartIndex(), $expr.result.getStopIndex()); }
     ;
 
 expr returns [FExpressionNode result]:
@@ -205,9 +221,6 @@ expr returns [FExpressionNode result]:
                                { $result = factory.createBinOp($op.getText(), $lhs.result, $rhs.result); } |
     // OR
     lhs=expr op='||' rhs=expr
-                               { $result = factory.createBinOp($op.getText(), $lhs.result, $rhs.result); } |
-    // assignment
-    <assoc=right>lhs=expr op='=' rhs=expr
                                { $result = factory.createBinOp($op.getText(), $lhs.result, $rhs.result); } |
     value                      { $result = $value.result; }
     ;

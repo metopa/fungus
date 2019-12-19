@@ -4,6 +4,8 @@ import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import cz.metopa.fungus.FException;
+import cz.metopa.fungus.nodes.FTypes;
+import cz.metopa.fungus.runtime.FNull;
 
 @NodeInfo(shortName = "!=")
 public abstract class FNEqNode extends FComparisonNode {
@@ -25,6 +27,16 @@ public abstract class FNEqNode extends FComparisonNode {
     @Specialization
     protected boolean stringCmp(String lhs, String rhs) {
         return !lhs.equals(rhs);
+    }
+
+    @Specialization
+    protected boolean nullCmpL(FNull lhs, Object rhs) {
+        return !FTypes.isFNull(rhs);
+    }
+
+    @Specialization
+    protected boolean nullCmpR(Object lhs, FNull rhs) {
+        return !FTypes.isFNull(lhs);
     }
 
     @Fallback

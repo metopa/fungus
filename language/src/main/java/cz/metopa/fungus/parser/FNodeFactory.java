@@ -10,11 +10,10 @@ import cz.metopa.fungus.nodes.FExpressionNode;
 import cz.metopa.fungus.nodes.FReadArgumentNode;
 import cz.metopa.fungus.nodes.FRootNode;
 import cz.metopa.fungus.nodes.FStatementNode;
-import cz.metopa.fungus.nodes.controlflow.FBlockNode;
-import cz.metopa.fungus.nodes.controlflow.FFunctionBodyNode;
-import cz.metopa.fungus.nodes.controlflow.FInvokeNode;
+import cz.metopa.fungus.nodes.controlflow.*;
 import cz.metopa.fungus.nodes.expression.FFunctionRef;
 import cz.metopa.fungus.nodes.expression.FReadLocalVariableNodeGen;
+import cz.metopa.fungus.nodes.expression.FWriteLocalVariableNode;
 import cz.metopa.fungus.nodes.expression.FWriteLocalVariableNodeGen;
 import cz.metopa.fungus.nodes.expression.binop.*;
 import cz.metopa.fungus.nodes.expression.constants.*;
@@ -167,26 +166,18 @@ public class FNodeFactory {
 
     public FStatementNode createWhile(FExpressionNode condition, FBlockNode body, int startIndex,
                                       int stopIndex) {
-        /*if (condition == null || body == null) {
-            return null;
-        }
-
-        final FWhileNode whileNode = new FWhileNode(condition, body);
-        whileNode.setSourceSection(startIndex, calculateLength(startIndex,
-        stopIndex)); return whileNode;*/
-
-        throw new NotImplementedException();
+        return new FWhileNode(condition, body);
     }
 
     public FStatementNode createIf(FExpressionNode condition, FStatementNode thenBranch,
                                    FStatementNode elseBranch, int startIndex) {
-        throw new NotImplementedException();
+        return new FIfNode(condition, thenBranch, elseBranch);
     }
 
     public FStatementNode createFor(FStatementNode prologue, FExpressionNode condition,
-                                    FExpressionNode postIter, FBlockNode body, int startIndex,
+                                    FStatementNode postIter, FBlockNode body, int startIndex,
                                     int stopIndex) {
-        throw new NotImplementedException();
+        return new FForNode(prologue, condition, postIter, body);
     }
 
     public FStatementNode declareVariable(String name, FExpressionNode initialValue, int startIndex,
@@ -196,7 +187,7 @@ public class FNodeFactory {
     }
 
     public FStatementNode createReturn(FExpressionNode returnValue, int startIndex, int stopIndex) {
-        throw new NotImplementedException();
+        return new FReturnNode(returnValue);
     }
 
     public FStatementNode createAssert(FExpressionNode expressionNode, int startIndex,
@@ -204,16 +195,10 @@ public class FNodeFactory {
         throw new NotImplementedException();
     }
 
-    public FStatementNode createDebuggerHalt(int startIndex, int stopIndex) {
-        throw new NotImplementedException();
-    }
-
-    public FStatementNode createBreak(int startIndex, int stopIndex) {
-        throw new NotImplementedException();
-    }
+    public FStatementNode createBreak(int startIndex, int stopIndex) { return new FBreakNode(); }
 
     public FStatementNode createContinue(int startIndex, int stopIndex) {
-        throw new NotImplementedException();
+        return new FContinueNode();
     }
 
     public FExpressionNode createBinOp(String op, FExpressionNode lhs, FExpressionNode rhs) {
@@ -314,14 +299,17 @@ public class FNodeFactory {
         throw new NotImplementedException();
     }
 
+    public FWriteLocalVariableNode createAssignment(String identifier, FExpressionNode value,
+                                                    int startIndex, int stopIndex) {
+        FrameSlot slot = currentScope.resolveSlot(identifier);
+        return FWriteLocalVariableNodeGen.create(value, slot);
+    }
+
     public FExpressionNode createArrayAccess(FExpressionNode lhs, FExpressionNode index,
                                              int startIndex, int stopIndex) {
         throw new NotImplementedException();
     }
 
-    /**
-     * Creates source description of a single token.
-     */
     private static void srcFromToken(FStatementNode node, Token token) {
         node.setSourceSection(token.getStartIndex(), token.getText().length());
     }

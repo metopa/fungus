@@ -13,12 +13,22 @@ import cz.metopa.fungus.nodes.FExpressionNode;
 public abstract class FReadLocalVariableNode extends FExpressionNode {
     protected abstract FrameSlot getSlot();
 
-    //@Specialization(guards = "isBoolean(frame)")
+    @Specialization(guards = "isBoolean(frame)")
     protected boolean readBoolean(VirtualFrame frame) {
         return FrameUtil.getBooleanSafe(frame, getSlot());
     }
 
-    @Specialization(/*replaces = {"readLong", "readBoolean"}*/)
+    @Specialization(guards = "isInt(frame)")
+    protected int readInt(VirtualFrame frame) {
+        return FrameUtil.getIntSafe(frame, getSlot());
+    }
+
+    @Specialization(guards = "isFloat(frame)")
+    protected float readFloat(VirtualFrame frame) {
+        return FrameUtil.getFloatSafe(frame, getSlot());
+    }
+
+    @Specialization(replaces = {"readBoolean", "readInt", "readFloat"})
     protected Object readObject(VirtualFrame frame) {
         if (!frame.isObject(getSlot())) {
             /*
@@ -40,5 +50,13 @@ public abstract class FReadLocalVariableNode extends FExpressionNode {
 
     protected boolean isBoolean(VirtualFrame frame) {
         return frame.getFrameDescriptor().getFrameSlotKind(getSlot()) == FrameSlotKind.Boolean;
+    }
+
+    protected boolean isInt(VirtualFrame frame) {
+        return frame.getFrameDescriptor().getFrameSlotKind(getSlot()) == FrameSlotKind.Int;
+    }
+
+    protected boolean isFloat(VirtualFrame frame) {
+        return frame.getFrameDescriptor().getFrameSlotKind(getSlot()) == FrameSlotKind.Float;
     }
 }

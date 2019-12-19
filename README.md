@@ -14,14 +14,15 @@
 - [ ] Support name shadowing
 - [ ] Support general lvalue node
 - [x] Support binary operators
-- [ ] Support unary operators
-- [ ] Support control flow nodes
+- [x] Support unary operators
+- [x] Support control flow nodes
 - [x] Use custom exceptions
 - [x] Support builtin functions
 - [ ] Implement builtins
 - [x] Add clang-format
-- [ ] Bool conversion support
-- [ ] Null comparison support
+- [x] Bool conversion support
+- [x] Null comparison support
+- [ ] Support assert expression
 
 ## Fungus Types
 

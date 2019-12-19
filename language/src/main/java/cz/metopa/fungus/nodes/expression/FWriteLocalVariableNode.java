@@ -11,38 +11,32 @@ import cz.metopa.fungus.nodes.FExpressionNode;
 @NodeChild("valueNode")
 @NodeField(name = "slot", type = FrameSlot.class)
 public abstract class FWriteLocalVariableNode extends FExpressionNode {
-    /**
-     * Returns the descriptor of the accessed local variable. The implementation
-     * of this method is created by the Truffle DSL based on the {@link NodeField}
-     * annotation on the class.
-     */
     protected abstract FrameSlot getSlot();
 
-    //@Specialization(guards = "isBooleanOrIllegal(frame)")
-    protected boolean writeBoolean(VirtualFrame frame, boolean value) {
-        frame.getFrameDescriptor().setFrameSlotKind(getSlot(), FrameSlotKind.Boolean);
-        frame.setBoolean(getSlot(), value);
-        return value;
-    }
+    //    @Specialization(guards = "isBooleanOrIllegal(frame)")
+    //    protected boolean writeBoolean(VirtualFrame frame, boolean value) {
+    //        frame.getFrameDescriptor().setFrameSlotKind(getSlot(), FrameSlotKind.Boolean);
+    //        frame.setBoolean(getSlot(), value);
+    //        return value;
+    //    }
+    //
+    //    @Specialization(guards = "isIntOrIllegal(frame)")
+    //    protected int writeInt(VirtualFrame frame, int value) {
+    //        frame.getFrameDescriptor().setFrameSlotKind(getSlot(), FrameSlotKind.Int);
+    //        frame.setInt(getSlot(), value);
+    //        return value;
+    //    }
+    //
+    //    @Specialization(guards = "isFloatOrIllegal(frame)")
+    //    protected float writeFloat(VirtualFrame frame, float value) {
+    //        frame.getFrameDescriptor().setFrameSlotKind(getSlot(), FrameSlotKind.Float);
+    //        frame.setFloat(getSlot(), value);
+    //        return value;
+    //    }
 
-    //@Specialization(guards = "isIntOrIllegal(frame)")
-    protected int writeInt(VirtualFrame frame, int value) {
-        frame.getFrameDescriptor().setFrameSlotKind(getSlot(), FrameSlotKind.Int);
-        frame.setInt(getSlot(), value);
-        return value;
-    }
-
-    //@Specialization(guards = "isFloatOrIllegal(frame)")
-    protected float writeFloat(VirtualFrame frame, float value) {
-        frame.getFrameDescriptor().setFrameSlotKind(getSlot(), FrameSlotKind.Float);
-        frame.setFloat(getSlot(), value);
-        return value;
-    }
-
-    @Specialization() // replaces = {"writeBoolean", "writeInt", "writeLong"})
+    @Specialization(/*replaces = {"writeBoolean", "writeInt", "writeFloat"}*/)
     protected Object write(VirtualFrame frame, Object value) {
         frame.getFrameDescriptor().setFrameSlotKind(getSlot(), FrameSlotKind.Object);
-
         frame.setObject(getSlot(), value);
         return value;
     }

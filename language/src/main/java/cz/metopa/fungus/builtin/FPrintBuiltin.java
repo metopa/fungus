@@ -6,20 +6,20 @@ import cz.metopa.fungus.parser.FNodeFactory;
 import cz.metopa.fungus.runtime.FNull;
 import java.util.Objects;
 
-public class FPrintFunction extends FExpressionNode {
+public class FPrintBuiltin extends FExpressionNode {
     private final boolean lineEnd;
     private final boolean delimiter;
 
-    private FPrintFunction(boolean lineEnd, boolean delimiter) {
+    private FPrintBuiltin(boolean lineEnd, boolean delimiter) {
         this.lineEnd = lineEnd;
         this.delimiter = delimiter;
     }
 
     public static void register(FNodeFactory factory) {
-        factory.registerFunction("print", null, new FPrintFunction(false, false), null);
-        factory.registerFunction("println", null, new FPrintFunction(true, false), null);
-        factory.registerFunction("prints", null, new FPrintFunction(false, true), null);
-        factory.registerFunction("printsln", null, new FPrintFunction(true, true), null);
+        factory.registerFunction("print", null, new FPrintBuiltin(false, false), null);
+        factory.registerFunction("println", null, new FPrintBuiltin(true, false), null);
+        factory.registerFunction("prints", null, new FPrintBuiltin(false, true), null);
+        factory.registerFunction("printsln", null, new FPrintBuiltin(true, true), null);
     }
 
     @Override

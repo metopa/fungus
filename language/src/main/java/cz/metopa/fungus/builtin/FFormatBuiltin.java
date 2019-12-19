@@ -4,17 +4,16 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import cz.metopa.fungus.FException;
 import cz.metopa.fungus.nodes.FExpressionNode;
 import cz.metopa.fungus.parser.FNodeFactory;
-import cz.metopa.fungus.runtime.FNull;
 import java.util.Arrays;
 import java.util.Formatter;
-import java.util.Objects;
+import java.util.IllegalFormatConversionException;
 
-public class FFormatFunction extends FExpressionNode {
+public class FFormatBuiltin extends FExpressionNode {
 
-    private FFormatFunction() {}
+    private FFormatBuiltin() {}
 
     public static void register(FNodeFactory factory) {
-        factory.registerFunction("format", null, new FFormatFunction(), null);
+        factory.registerFunction("format", null, new FFormatBuiltin(), null);
     }
 
     @Override
@@ -28,7 +27,12 @@ public class FFormatFunction extends FExpressionNode {
         args = Arrays.copyOfRange(args, 1, args.length);
         StringBuilder sb = new StringBuilder();
         Formatter fmt = new Formatter(sb);
-        fmt.format(formatString, args);
-        return sb.toString();
+        try {
+            fmt.format(formatString, args);
+            return sb.toString();
+        } catch (IllegalFormatConversionException ex) {
+            throw FException.runtimeError(
+                "invalid format string \"" + formatString + "\": " + ex.getMessage(), this);
+        }
     }
 }
