@@ -7,7 +7,6 @@ import cz.metopa.fungus.builtin.type_conversion.FFloatConversionNodeGen;
 import cz.metopa.fungus.builtin.type_conversion.FIntConversionNodeGen;
 import cz.metopa.fungus.builtin.type_conversion.FStringConversionNodeGen;
 import cz.metopa.fungus.nodes.FExpressionNode;
-import cz.metopa.fungus.nodes.FReadArgumentNode;
 import cz.metopa.fungus.parser.FNodeFactory;
 import java.util.List;
 
@@ -56,6 +55,25 @@ abstract public class FBuiltinNode extends FExpressionNode {
         factory.registerBuiltin("max", args -> {
             checkArgCount(2, "max", args);
             return FMaxBuiltinNodeGen.create(args.get(0), args.get(1));
+        });
+        factory.registerBuiltin("min", args -> {
+            checkArgCount(2, "min", args);
+            return FMinBuiltinNodeGen.create(args.get(0), args.get(1));
+        });
+
+        factory.registerBuiltin("sqrt", args -> {
+            checkArgCount(1, "sqrt", args);
+            return FSqrtBuiltinNodeGen.create(args.get(0));
+        });
+
+        factory.registerBuiltin("rand", args -> {
+            checkArgCount(0, "rand", args);
+            return new FRandBuiltin();
+        });
+
+        factory.registerBuiltin("now", args -> {
+            checkArgCount(0, "now", args);
+            return new FNowBuiltin();
         });
     }
 
