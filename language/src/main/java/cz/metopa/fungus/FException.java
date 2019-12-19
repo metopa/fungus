@@ -5,6 +5,7 @@ import com.oracle.truffle.api.TruffleException;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.sl.runtime.SLContext;
+import cz.metopa.fungus.builtin.FAssertBuiltin;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
@@ -35,7 +36,11 @@ public class FException extends RuntimeException implements TruffleException {
         return isInternal;
     }
 
-    @TruffleBoundary
+    public static FException assertError(FAssertBuiltin node, String source) {
+        return new FException("Assertion failure: assert(" + source + ") is false", node, false);
+    }
+
+    @TruffleBoundary // TODO TruffleBoundary everywhere
     public static FException typeError(Node operation, Object... values) {
         StringBuilder result = new StringBuilder();
         result.append("Type error: operation ");

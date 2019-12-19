@@ -18,11 +18,11 @@
 - [x] Support control flow nodes
 - [x] Use custom exceptions
 - [x] Support builtin functions
-- [ ] Implement builtins
+- [x] Implement builtins
 - [x] Add clang-format
 - [x] Bool conversion support
 - [x] Null comparison support
-- [ ] Support assert expression
+- [x] Support assert expression
 - [ ] Add testing script
 
 ## Fungus Types
@@ -66,9 +66,6 @@
 - Special tokens
   - `true`
   - `false`
-  - `vec3`
-  - `array<T>`
-  - `assert`
   - `return`
   - `break`
   - `continue`
@@ -86,13 +83,14 @@
   - `rand`
   - `now`
   - `type`
-  - `open`
-  - `close`
+  - `assert`
   - Type conversions
     - `bool`
     - `int`
     - `float`
     - `string`
+    - `vec3`
+    - `array<T>`
     
 ## Operator precedence
 - `.`, `()`, `[]`

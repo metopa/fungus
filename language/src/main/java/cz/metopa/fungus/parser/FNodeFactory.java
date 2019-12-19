@@ -6,6 +6,7 @@ import com.oracle.truffle.api.frame.FrameSlot;
 import com.oracle.truffle.api.source.Source;
 import cz.metopa.fungus.FException;
 import cz.metopa.fungus.FLanguage;
+import cz.metopa.fungus.builtin.FAssertBuiltinNodeGen;
 import cz.metopa.fungus.nodes.FExpressionNode;
 import cz.metopa.fungus.nodes.FReadArgumentNode;
 import cz.metopa.fungus.nodes.FRootNode;
@@ -207,9 +208,9 @@ public class FNodeFactory {
         return new FReturnNode(returnValue);
     }
 
-    public FStatementNode createAssert(FExpressionNode expressionNode, int startIndex,
-                                       int stopIndex) {
-        throw new NotImplementedException();
+    public FStatementNode createAssert(FExpressionNode expressionNode, String source,
+                                       int startIndex, int stopIndex) {
+        return FAssertBuiltinNodeGen.create(source, expressionNode);
     }
 
     public FStatementNode createBreak(int startIndex, int stopIndex) { return new FBreakNode(); }

@@ -181,8 +181,11 @@ locals [FExpressionNode retval]:
     ;
 
 assert_stmt returns [FStatementNode result]:
-    s='assert' '(' expr e=')'
-                               { $result = factory.createAssert($expr.result, $s.getStartIndex(), $e.getStopIndex()); }
+    s='assert' '(' expr ')' e=';'
+                               { Interval interval = new Interval($expr.start.getStartIndex(), $expr.stop.getStopIndex());
+                                 String assertLine = $expr.start.getInputStream().getText(interval);
+                                 $result = factory.createAssert($expr.result, assertLine, $s.getStartIndex(), $e.getStopIndex());
+                               }
     ;
 
 break_stmt returns [FStatementNode result]:
