@@ -5,7 +5,6 @@ import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import cz.metopa.fungus.FException;
-import cz.metopa.fungus.builtin.FBuiltinNode;
 import cz.metopa.fungus.nodes.FExpressionNode;
 
 @NodeInfo(shortName = "sqrt")

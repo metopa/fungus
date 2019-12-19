@@ -6,7 +6,6 @@ import com.oracle.truffle.api.frame.FrameSlot;
 import com.oracle.truffle.api.source.Source;
 import cz.metopa.fungus.FException;
 import cz.metopa.fungus.FLanguage;
-import cz.metopa.fungus.builtin.FBuiltinNode;
 import cz.metopa.fungus.nodes.FExpressionNode;
 import cz.metopa.fungus.nodes.FReadArgumentNode;
 import cz.metopa.fungus.nodes.FRootNode;

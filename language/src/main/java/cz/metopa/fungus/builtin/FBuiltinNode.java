@@ -75,6 +75,11 @@ abstract public class FBuiltinNode extends FExpressionNode {
             checkArgCount(0, "now", args);
             return new FNowBuiltin();
         });
+
+        factory.registerBuiltin("typename", args -> {
+            checkArgCount(1, "typename", args);
+            return FTypeNameBuiltinNodeGen.create(args.get(0));
+        });
     }
 
     private static void checkArgCount(int expected, String name, List<FExpressionNode> args) {
