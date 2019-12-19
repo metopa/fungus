@@ -4,6 +4,7 @@ import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import cz.metopa.fungus.FException;
+import cz.metopa.fungus.runtime.FNull;
 
 @NodeInfo(shortName = "bool conversion")
 abstract public class FBoolConversionNode extends FTypeConversionNode {
@@ -23,8 +24,13 @@ abstract public class FBoolConversionNode extends FTypeConversionNode {
     }
 
     @Specialization
-    public Boolean fromString(String s) {
+    public boolean fromString(String s) {
         return !s.isEmpty();
+    }
+
+    @Specialization
+    public boolean fromNull(FNull n) {
+        return false;
     }
 
     @Fallback
