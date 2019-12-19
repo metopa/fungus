@@ -5,8 +5,9 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 
 @NodeInfo(shortName = "rand")
 public class FRandBuiltin extends FBuiltinNode {
+    // TODO: float specialization
     @Override
-    public Object executeGeneric(VirtualFrame frame) {
-        return Math.random();
+    public Float executeGeneric(VirtualFrame frame) {
+        return (float)Math.random();
     }
 }

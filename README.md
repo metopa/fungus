@@ -288,8 +288,6 @@ func main() {
 func main() {
   - `print`
     - `read`
-    - `open`
-    - `close`
     - `min`
     - `max`
     - `sqrt`
