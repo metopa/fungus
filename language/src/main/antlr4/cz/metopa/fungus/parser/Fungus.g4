@@ -3,6 +3,7 @@ grammar Fungus;
 @parser::header
 {
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -94,9 +95,9 @@ struct_decl:
     ;
 
 func_decl:
-    s='func' IDENT
+    s='func' name=(IDENT|BINOP_IDENT)
     '(' opt_ident_list ')'     { factory.startFunction($opt_ident_list.result); }
-    block[false]               { factory.finishFunction($IDENT.getText(), $block.result, $s.getStartIndex(), $block.result.getStopIndex()); }
+    block[false]               { factory.finishFunction($name.getText(), $block.result, $s.getStartIndex(), $block.result.getStopIndex()); }
     ;
 
 ident_list returns [List<Token> result]:
@@ -206,7 +207,8 @@ expr returns [FExpressionNode result]:
     // value access
     op=('-' | '+' | '!') expr { $result = factory.createUnOp($op.getText(), $expr.result, $op.getStartIndex(), $expr.result.getStopIndex()); } |
     // user-defined binop
-    // expr @op expr           |
+    lhs=expr BINOP_IDENT rhs=expr { $result = factory.createCall($BINOP_IDENT.getText(), Arrays.asList($lhs.result, $rhs.result),
+                                                                 $lhs.result.getStartIndex(), $rhs.result.getStopIndex()); }      |
     // power
     <assoc=right>lhs=expr op='^' rhs=expr
                                { $result = factory.createBinOp($op.getText(), $lhs.result, $rhs.result); } |
@@ -268,6 +270,7 @@ fragment EXPONENT : ('e'|'E') ('+'|'-')? ('0'..'9')+ ;
 fragment STRING_CHAR : ~('"' | '\\' | '\r' | '\n');
 
 IDENT : LETTER (LETTER | DIGIT)*;
+BINOP_IDENT : '@'IDENT;
 STRING_LITERAL : '"' (STRING_CHAR | '\\' . )* '"';
 INT_LITERAL: DIGIT+ | '0x' HEX_DIGIT+;
 FLOAT_LITERAL:

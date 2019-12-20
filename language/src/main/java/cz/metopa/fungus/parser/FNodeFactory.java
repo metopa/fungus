@@ -22,10 +22,7 @@ import cz.metopa.fungus.nodes.expression.unop.FNotNodeGen;
 import cz.metopa.fungus.nodes.expression.unop.FUnaryMinusNodeGen;
 import cz.metopa.fungus.nodes.expression.unop.FUnaryPlusNodeGen;
 import cz.metopa.fungus.runtime.FFunction;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import org.antlr.v4.runtime.Token;
 import org.apache.commons.text.StringEscapeUtils;
@@ -139,6 +136,9 @@ public class FNodeFactory {
 
     public void registerFunction(String name, Integer parameterCount, FExpressionNode rootStatement,
                                  FrameDescriptor frameDescriptor) {
+        if (name.startsWith("@") && !Objects.equals(parameterCount, 2)) {
+            throw FException.parsingError("user-defined binary operator must have 2 parameters");
+        }
         final FRootNode rootNode = new FRootNode(language, frameDescriptor, rootStatement, name);
         if (builtins.containsKey(name)) {
             throw FException.parsingError("builtin " + name + " redefined");

@@ -4,7 +4,7 @@
 
 - [x] Minimal working example with SL nodes
 - [x] Transfer node system
-- [ ] @operator support
+- [x] @operator support
 - [ ] Support arrays
 - [ ] Support vectors
 - [ ] Support short circuit operators

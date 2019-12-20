@@ -7,6 +7,7 @@ test_passing () {
   then
     echo "[FAIL]: $1 expected to pass"
     echo "=================="
+    echo "${FUNGUS_INTERPRETER} $1"
     ${FUNGUS_INTERPRETER} "$1"
     echo "=================="
     exit 1
@@ -19,6 +20,7 @@ test_failing () {
   then
     echo "[FAIL]: $1 expected to fail with assert"
     echo "=================="
+    echo "${FUNGUS_INTERPRETER} $1"
     ${FUNGUS_INTERPRETER} "$1"
     echo "=================="
     exit 1
@@ -31,6 +33,7 @@ test_parsing_error () {
   then
     echo "[FAIL]: $1 expected to fail with error"
     echo "=================="
+    echo "${FUNGUS_INTERPRETER} $1"
     ${FUNGUS_INTERPRETER} "$1"
     echo "=================="
     exit 1
