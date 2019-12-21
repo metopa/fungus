@@ -80,6 +80,11 @@ abstract public class FBuiltinNode extends FExpressionNode {
             checkArgCount(1, "typename", args);
             return FTypeNameBuiltinNodeGen.create(args.get(0));
         });
+
+        factory.registerBuiltin("len", args -> {
+            checkArgCount(1, "len", args);
+            return FLenBuiltinNodeGen.create(args.get(0));
+        });
     }
 
     private static void checkArgCount(int expected, String name, List<FExpressionNode> args) {

@@ -7,21 +7,16 @@ import com.oracle.truffle.api.source.Source;
 import cz.metopa.fungus.FException;
 import cz.metopa.fungus.FLanguage;
 import cz.metopa.fungus.builtin.FAssertBuiltinNodeGen;
-import cz.metopa.fungus.nodes.FExpressionNode;
-import cz.metopa.fungus.nodes.FReadArgumentNode;
-import cz.metopa.fungus.nodes.FRootNode;
-import cz.metopa.fungus.nodes.FStatementNode;
+import cz.metopa.fungus.nodes.*;
 import cz.metopa.fungus.nodes.controlflow.*;
-import cz.metopa.fungus.nodes.expression.FFunctionRef;
-import cz.metopa.fungus.nodes.expression.FReadLocalVariableNodeGen;
-import cz.metopa.fungus.nodes.expression.FWriteLocalVariableNode;
-import cz.metopa.fungus.nodes.expression.FWriteLocalVariableNodeGen;
+import cz.metopa.fungus.nodes.expression.*;
 import cz.metopa.fungus.nodes.expression.binop.*;
 import cz.metopa.fungus.nodes.expression.constants.*;
 import cz.metopa.fungus.nodes.expression.unop.FNotNodeGen;
 import cz.metopa.fungus.nodes.expression.unop.FUnaryMinusNodeGen;
 import cz.metopa.fungus.nodes.expression.unop.FUnaryPlusNodeGen;
 import cz.metopa.fungus.runtime.FFunction;
+import cz.metopa.fungus.runtime.FNull;
 import java.util.*;
 import java.util.function.Function;
 import org.antlr.v4.runtime.Token;
@@ -110,17 +105,11 @@ public class FNodeFactory {
         for (int i = 0; i < parameters.size(); i++) {
             FReadArgumentNode readArg = new FReadArgumentNode(i);
             FStatementNode assignment =
-                declareVariable(parameters.get(i).getText(), readArg, -1, -1);
+                declareVariable(parameters.get(i).getText(), null, readArg, -1, -1);
             currentScope.addStatement(assignment);
         }
     }
 
-    /**
-     * Declaration creates FFunction: {name, callTarget} -> save to registry. On
-     * load gets callTarget Invoke creates FInvokeNode: {name, arguments} -> on
-     * execute: lookup function in context, cache it. run DirectCall() Builtin:
-     * pass custom FStatement + FrameDescriptor
-     */
     public void finishFunction(String name, FStatementNode body, int startIndex, int stopIndex) {
         currentScope.addStatement(body);
         FBlockNode funcRootBlock = finishBlock(startIndex, stopIndex);
@@ -195,13 +184,23 @@ public class FNodeFactory {
         return new FForNode(prologue, condition, postIter, body);
     }
 
-    public FStatementNode declareVariable(String name, FExpressionNode initialValue, int startIndex,
+    public FStatementNode declareVariable(String name, List<FExpressionNode> arrayShape,
+                                          FExpressionNode initialValue, int startIndex,
                                           int stopIndex) {
         if (builtins.containsKey(name)) {
             throw FException.parsingError("builtin " + name + " redefined");
         }
+        if (initialValue == null) {
+            initialValue = new FNullConstantNode();
+        }
+
         FrameSlot slot = currentScope.addSlot(name);
-        return FWriteLocalVariableNodeGen.create(initialValue, slot);
+        if (arrayShape == null || arrayShape.isEmpty()) {
+            return FWriteLocalVariableNodeGen.create(initialValue, slot);
+        } else {
+            return FWriteLocalVariableNodeGen.create(new FAllocArrayNode(arrayShape, initialValue),
+                                                     slot);
+        }
     }
 
     public FStatementNode createReturn(FExpressionNode returnValue, int startIndex, int stopIndex) {
@@ -321,15 +320,23 @@ public class FNodeFactory {
         throw new NotImplementedException();
     }
 
-    public FWriteLocalVariableNode createAssignment(String identifier, FExpressionNode value,
-                                                    int startIndex, int stopIndex) {
-        FrameSlot slot = currentScope.resolveSlot(identifier);
-        return FWriteLocalVariableNodeGen.create(value, slot);
+    public FStatementNode createAssignment(String name, List<FExpressionNode> arrayAccess,
+                                           FExpressionNode value, int startIndex, int stopIndex) {
+        FrameSlot slot = currentScope.resolveSlot(name);
+        if (arrayAccess == null || arrayAccess.isEmpty()) {
+            return FWriteLocalVariableNodeGen.create(value, slot);
+        } else {
+            FExpressionNode expr = FReadLocalVariableNodeGen.create(slot);
+            for (FExpressionNode index : arrayAccess.subList(0, arrayAccess.size() - 1)) {
+                expr = FArrayAccessNodeGen.create(expr, index);
+            }
+            return FArrayWriteNodeGen.create(expr, arrayAccess.get(arrayAccess.size() - 1), value);
+        }
     }
 
     public FExpressionNode createArrayAccess(FExpressionNode lhs, FExpressionNode index,
                                              int startIndex, int stopIndex) {
-        throw new NotImplementedException();
+        return FArrayAccessNodeGen.create(lhs, index);
     }
 
     private static void srcFromToken(FStatementNode node, Token token) {

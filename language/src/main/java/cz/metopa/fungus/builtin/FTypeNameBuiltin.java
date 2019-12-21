@@ -6,7 +6,9 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import cz.metopa.fungus.FException;
 import cz.metopa.fungus.nodes.FExpressionNode;
+import cz.metopa.fungus.runtime.FArray;
 import cz.metopa.fungus.runtime.FNull;
+import cz.metopa.fungus.runtime.FVec3;
 
 @NodeInfo(shortName = "typename")
 @NodeChild(value = "arg", type = FExpressionNode.class)
@@ -27,13 +29,23 @@ abstract public class FTypeNameBuiltin extends FBuiltinNode {
     }
 
     @Specialization
-    public String boolType(String arg) {
+    public String stringType(String arg) {
         return "string";
     }
 
     @Specialization
-    public String boolType(FNull arg) {
+    public String nullType(FNull arg) {
         return "null";
+    }
+
+    @Specialization
+    public String arrayType(FArray arg) {
+        return String.format("array[%d]", arg.size());
+    }
+
+    @Specialization
+    public String vecType(FVec3 arg) {
+        return "vec3";
     }
 
     @Fallback

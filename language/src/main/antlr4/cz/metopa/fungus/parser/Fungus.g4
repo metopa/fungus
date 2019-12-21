@@ -18,7 +18,6 @@ import cz.metopa.fungus.nodes.controlflow.FBlockNode;
 import cz.metopa.fungus.nodes.controlflow.FFunctionBodyNode;
 import cz.metopa.fungus.nodes.controlflow.FInvokeNode;
 import cz.metopa.fungus.nodes.expression.FFunctionRef;
-import cz.metopa.fungus.nodes.expression.FWriteLocalVariableNode;
 import cz.metopa.fungus.nodes.FReadArgumentNode;
 import cz.metopa.fungus.nodes.expression.constants.FStringConstantNode;
 import cz.metopa.fungus.runtime.FFunction;
@@ -78,9 +77,9 @@ fungus:
     ;
 
 top_level_decl:
-    func_decl       |
-    global_var_decl |
-    struct_decl
+    func_decl       // |
+    // global_var_decl |
+    // struct_decl
     ;
 
 global_var_decl:
@@ -168,11 +167,13 @@ for_post_iter returns [FStatementNode result]:
     ;
 
 var_decl returns [FStatementNode result]
-locals [FExpressionNode initValue]:
-    s='var' IDENT ('=' expr { $initValue = $expr.result; } |
-                            { $initValue = factory.createNullLiteral($IDENT); } )
-                            { $result = factory.declareVariable($IDENT.getText(), $initValue,
-                                        $s.getStartIndex(), $initValue.getStopIndex()); }
+locals [FExpressionNode initValue,
+        List<FExpressionNode> arrayShape = new ArrayList<>()]:
+    s='var' IDENT (bracket_expr { $arrayShape.add($bracket_expr.result); })*
+      ('=' expr                 { $initValue = $expr.result; }
+      | )
+                                { $result = factory.declareVariable($IDENT.getText(), $arrayShape, $initValue,
+                                        $s.getStartIndex(), -1); }
     ;
 
 return_stmt returns [FStatementNode result]
@@ -197,8 +198,11 @@ continue_stmt returns [FStatementNode result]:
     s='continue' e=';'         { $result = factory.createContinue($s.getStartIndex(), $e.getStopIndex()); }
     ;
 
-assignment_expr returns [FWriteLocalVariableNode result]:
-    IDENT '=' expr             { $result = factory.createAssignment($IDENT.getText(), $expr.result, $IDENT.getStartIndex(), $expr.result.getStopIndex()); }
+assignment_expr returns [FStatementNode result]
+locals [List<FExpressionNode> arrayShape = new ArrayList<>()]:
+    IDENT (bracket_expr        { $arrayShape.add($bracket_expr.result); })* '=' expr
+                               { $result = factory.createAssignment($IDENT.getText(), $arrayShape, $expr.result,
+                                               $IDENT.getStartIndex(), $expr.result.getStopIndex()); }
     ;
 
 expr returns [FExpressionNode result]:
@@ -251,8 +255,13 @@ func_call_arguments returns [List<FExpressionNode> result]:
     )?
     ;
 
+bracket_expr returns [FExpressionNode result]:
+    s='[' expr e=']' { $result = factory.withLocation($expr.result, $s.getStartIndex(), $e.getStopIndex()); }
+    ;
+
 type_access[FExpressionNode lhs] returns [FExpressionNode result]:
-    '[' expr e=']'             { $lhs = factory.createArrayAccess($lhs, $expr.result, $lhs.getStartIndex(), $e.getStopIndex()); }
+    bracket_expr               { $lhs = factory.createArrayAccess($lhs, $bracket_expr.result,
+                                        $lhs.getStartIndex(), $bracket_expr.result.getStopIndex()); }
       type_access[$lhs]        { $result = $type_access.result; } |
     '.' IDENT                  { $lhs = factory.createMemberAccess($lhs, $IDENT.getText(), $lhs.getStartIndex(), $IDENT.getStopIndex()); }
       type_access[lhs]         { $result = $type_access.result; } |

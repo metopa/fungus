@@ -30,7 +30,7 @@ public abstract class FShortCircuitNode extends FExpressionNode {
         }
         boolean rightValue;
         try {
-            if (isEvaluateRight(leftValue)) {  // TODO profile branch
+            if (isEvaluateRight(leftValue)) { // TODO profile branch
                 rightValue = rhs.executeBoolean(frame);
             } else {
                 rightValue = false;
