@@ -246,9 +246,9 @@ public class FNodeFactory {
         case ">":
             return FGreaterNodeGen.create(lhs, rhs);
         case "&&":
-            return FAndNodeGen.create(lhs, rhs);
+            return new FAndNode(lhs, rhs);
         case "||":
-            return FOrNodeGen.create(lhs, rhs);
+            return new FOrNode(lhs, rhs);
         default:
             throw FException.internalError("Unknown binary operator token: " + op);
         }

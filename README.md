@@ -7,7 +7,7 @@
 - [x] @operator support
 - [ ] Support arrays
 - [ ] Support vectors
-- [ ] Support short circuit operators
+- [x] Support short circuit operators
 - [ ] Check implicit type conversion
 - [ ] Support objects
 - [ ] Support global variables
