@@ -13,5 +13,6 @@
   <modules>
     <module>language</module>
     <module>launcher</module>
+    <module>examples/smallpt-java</module>
   </modules>
 </project>
