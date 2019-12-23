@@ -2,6 +2,8 @@ package cz.metopa.fungus.runtime;
 
 import com.oracle.truffle.api.interop.TruffleObject;
 import cz.metopa.fungus.FException;
+
+import java.util.Arrays;
 import java.util.List;
 
 public class FVec3 implements TruffleObject, FIndexable {
@@ -37,5 +39,10 @@ public class FVec3 implements TruffleObject, FIndexable {
     @Override
     public int size() {
         return 3;
+    }
+
+    @Override
+    public String toString() {
+        return "vec3" + Arrays.toString(data);
     }
 }

@@ -6,6 +6,7 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import cz.metopa.fungus.FException;
 import cz.metopa.fungus.nodes.FExpressionNode;
+import cz.metopa.fungus.runtime.FVec3;
 
 @NodeChild("lhs")
 @NodeChild("rhs")
@@ -43,6 +44,21 @@ public abstract class FMultiplicationNode extends FExpressionNode {
         }
 
         return builder.toString();
+    }
+
+    @Specialization
+    protected FVec3 vecVecMultiplication(FVec3 lhs, FVec3 rhs) {
+        return new FVec3(lhs.x() * rhs.x(), lhs.y() * rhs.y(), lhs.z() * rhs.z());
+    }
+
+    @Specialization
+    protected FVec3 vecFloatMultiplication(FVec3 lhs, float rhs) {
+        return new FVec3(lhs.x() * rhs, lhs.y() * rhs, lhs.z() * rhs);
+    }
+
+    @Specialization
+    protected FVec3 floatVecMultiplication(float lhs, FVec3 rhs) {
+        return new FVec3(lhs * rhs.x(), lhs * rhs.y(), lhs * rhs.z());
     }
 
     @Fallback

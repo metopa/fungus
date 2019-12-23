@@ -7,6 +7,7 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.api.profiles.BranchProfile;
 import cz.metopa.fungus.FException;
 import cz.metopa.fungus.nodes.FExpressionNode;
+import cz.metopa.fungus.runtime.FVec3;
 
 @NodeChild("lhs")
 @NodeChild("rhs")
@@ -33,6 +34,33 @@ public abstract class FModNode extends FExpressionNode {
         }
 
         return lhs % rhs;
+    }
+
+    @Specialization
+    protected FVec3 vecVecMod(FVec3 lhs, FVec3 rhs) {
+        if (rhs.x() == 0 || rhs.y() == 0 || rhs.z() == 0) {
+            seenFloat0.enter();
+            throw FException.runtimeError("division by zero", this);
+        }
+        return new FVec3(lhs.x() % rhs.x(), lhs.y() % rhs.y(), lhs.z() % rhs.z());
+    }
+
+    @Specialization
+    protected FVec3 vecFloatMod(FVec3 lhs, float rhs) {
+        if (rhs == 0) {
+            seenFloat0.enter();
+            throw FException.runtimeError("division by zero", this);
+        }
+        return new FVec3(lhs.x() % rhs, lhs.y() % rhs, lhs.z() % rhs);
+    }
+
+    @Specialization
+    protected FVec3 floatVecMod(float lhs, FVec3 rhs) {
+        if (rhs.x() == 0 || rhs.y() == 0 || rhs.z() == 0) {
+            seenFloat0.enter();
+            throw FException.runtimeError("division by zero", this);
+        }
+        return new FVec3(lhs % rhs.x(), lhs % rhs.y(), lhs % rhs.z());
     }
 
     @Fallback

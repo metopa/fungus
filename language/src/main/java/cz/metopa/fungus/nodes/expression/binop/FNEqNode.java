@@ -6,6 +6,7 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import cz.metopa.fungus.FException;
 import cz.metopa.fungus.nodes.FTypes;
 import cz.metopa.fungus.runtime.FNull;
+import cz.metopa.fungus.runtime.FVec3;
 
 @NodeInfo(shortName = "!=")
 public abstract class FNEqNode extends FComparisonNode {
@@ -37,6 +38,11 @@ public abstract class FNEqNode extends FComparisonNode {
     @Specialization
     protected boolean nullCmpR(Object lhs, FNull rhs) {
         return !FTypes.isFNull(lhs);
+    }
+
+    @Specialization
+    protected boolean vecCmp(FVec3 lhs, FVec3 rhs) {
+        return !(lhs.x() == rhs.x() && lhs.y() == rhs.y() && lhs.z() == rhs.z());
     }
 
     @Fallback

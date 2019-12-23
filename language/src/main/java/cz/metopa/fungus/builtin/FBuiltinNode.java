@@ -1,11 +1,9 @@
 package cz.metopa.fungus.builtin;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.nodes.ExplodeLoop;
 import cz.metopa.fungus.FException;
-import cz.metopa.fungus.builtin.type_conversion.FBoolConversionNodeGen;
-import cz.metopa.fungus.builtin.type_conversion.FFloatConversionNodeGen;
-import cz.metopa.fungus.builtin.type_conversion.FIntConversionNodeGen;
-import cz.metopa.fungus.builtin.type_conversion.FStringConversionNodeGen;
+import cz.metopa.fungus.builtin.type_conversion.*;
 import cz.metopa.fungus.nodes.FExpressionNode;
 import cz.metopa.fungus.parser.FNodeFactory;
 import java.util.List;
@@ -49,6 +47,15 @@ abstract public class FBuiltinNode extends FExpressionNode {
         factory.registerBuiltin("string", args -> {
             checkArgCountAtLeast(1, "string", args);
             return FStringConversionNodeGen.create(args.get(0));
+        });
+
+        factory.registerBuiltin("vec3", args -> {
+            if (args.size() == 1) {
+                return FVec3SingularConversionNodeGen.create(args.get(0));
+            } else {
+                checkArgCount(3, "vec3", args);
+                return FVec3ConversionNodeGen.create(args.get(0), args.get(1), args.get(2));
+            }
         });
 
         // =========== Misc builtins ===========
@@ -102,6 +109,7 @@ abstract public class FBuiltinNode extends FExpressionNode {
         }
     }
 
+    @ExplodeLoop
     protected static Object[] executeChildren(VirtualFrame frame, FExpressionNode[] nodes) {
         Object[] values = new Object[nodes.length];
 

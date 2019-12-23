@@ -2,7 +2,6 @@ package cz.metopa.fungus.runtime;
 
 import com.oracle.truffle.api.interop.TruffleObject;
 import cz.metopa.fungus.FException;
-
 import java.util.Arrays;
 import java.util.List;
 
