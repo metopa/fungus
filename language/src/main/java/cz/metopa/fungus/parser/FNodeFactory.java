@@ -88,9 +88,19 @@ public class FNodeFactory {
 
     public Map<String, FFunction> getAllFunctions() { return allFunctions; }
 
-    public void declareStructure(String name, List<Token> parameters, int startIndex,
+    public void declareStructure(String name, List<Token> fieldNameTokens, int startIndex,
                                  int stopIndex) {
-        throw new NotImplementedException();
+        if (fieldNameTokens.isEmpty()) {
+            throw FException.parsingError("Missing structure fields");
+        }
+
+        List<String> fieldNames = new ArrayList<>();
+        for (Token t : fieldNameTokens) {
+            fieldNames.add(t.getText());
+        }
+
+        FConstructorNode constructor = new FConstructorNode(name, fieldNames);
+        registerFunction(name, fieldNames.size(), constructor, null);
     }
 
     public void addGlobalVariable(String name, FExpressionNode initialValue, int startIndex,
@@ -98,14 +108,23 @@ public class FNodeFactory {
         throw new NotImplementedException();
     }
 
-    public void startFunction(List<Token> parameters) {
+    public void startFunction(String funcName, List<Token> parameters) {
         currentScope = new LexicalScope(null, new FrameDescriptor(), parameters.size());
         startBlock();
 
+        if (funcName.equals("main") && !parameters.isEmpty()) {
+            throw FException.parsingError("main function must not have parameters");
+        }
+
+        Set<String> paramNames = new HashSet<>();
+
         for (int i = 0; i < parameters.size(); i++) {
+            String paramName = parameters.get(i).getText();
+            if (!paramNames.add(paramName)) {
+                throw FException.parsingError("Duplicate parameter name: " + paramName);
+            }
             FReadArgumentNode readArg = new FReadArgumentNode(i);
-            FStatementNode assignment =
-                declareVariable(parameters.get(i).getText(), null, readArg, -1, -1);
+            FStatementNode assignment = declareVariable(paramName, null, readArg, -1, -1);
             currentScope.addStatement(assignment);
         }
     }
@@ -317,20 +336,36 @@ public class FNodeFactory {
 
     public FExpressionNode createMemberAccess(FExpressionNode lhs, String field, int startIndex,
                                               int stopIndex) {
-        throw new NotImplementedException();
+        return FFieldAccessNodeGen.create(field, lhs);
     }
 
-    public FStatementNode createAssignment(String name, List<FExpressionNode> arrayAccess,
+    public FStatementNode createAssignment(String name, List<Object> valueModifiers,
                                            FExpressionNode value, int startIndex, int stopIndex) {
         FrameSlot slot = currentScope.resolveSlot(name);
-        if (arrayAccess == null || arrayAccess.isEmpty()) {
+        if (valueModifiers == null || valueModifiers.isEmpty()) {
             return FWriteLocalVariableNodeGen.create(value, slot);
         } else {
             FExpressionNode expr = FReadLocalVariableNodeGen.create(slot);
-            for (FExpressionNode index : arrayAccess.subList(0, arrayAccess.size() - 1)) {
-                expr = FArrayAccessNodeGen.create(expr, index);
+            for (Object m : valueModifiers.subList(0, valueModifiers.size() - 1)) {
+                if (m instanceof FExpressionNode) {
+                    expr = FArrayAccessNodeGen.create(expr, (FExpressionNode)m);
+                } else if (m instanceof String) {
+                    expr = FFieldAccessNodeGen.create((String)m, expr);
+                } else {
+                    throw FException.internalError("Unknown assignment typeModifier type: " +
+                                                   m.getClass().getName());
+                }
             }
-            return FArrayWriteNodeGen.create(expr, arrayAccess.get(arrayAccess.size() - 1), value);
+
+            Object m = valueModifiers.get(valueModifiers.size() - 1);
+            if (m instanceof FExpressionNode) {
+                return FArrayWriteNodeGen.create(expr, (FExpressionNode)m, value);
+            } else if (m instanceof String) {
+                return FFieldWriteNodeGen.create((String)m, expr, value);
+            } else {
+                throw FException.internalError("Unknown assignment typeModifier type: " +
+                                               m.getClass().getName());
+            }
         }
     }
 

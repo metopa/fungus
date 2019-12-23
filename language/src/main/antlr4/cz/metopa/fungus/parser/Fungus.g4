@@ -77,9 +77,9 @@ fungus:
     ;
 
 top_level_decl:
-    func_decl       // |
-    // global_var_decl |
-    // struct_decl
+    func_decl   |
+    struct_decl
+    // | global_var_decl
     ;
 
 global_var_decl:
@@ -95,7 +95,7 @@ struct_decl:
 
 func_decl:
     s='func' name=(IDENT|BINOP_IDENT)
-    '(' opt_ident_list ')'     { factory.startFunction($opt_ident_list.result); }
+    '(' opt_ident_list ')'     { factory.startFunction($name.getText(), $opt_ident_list.result); }
     block[false]               { factory.finishFunction($name.getText(), $block.result, $s.getStartIndex(), $block.result.getStopIndex()); }
     ;
 
@@ -198,11 +198,16 @@ continue_stmt returns [FStatementNode result]:
     s='continue' e=';'         { $result = factory.createContinue($s.getStartIndex(), $e.getStopIndex()); }
     ;
 
-assignment_expr returns [FStatementNode result]
-locals [List<FExpressionNode> arrayShape = new ArrayList<>()]:
-    IDENT (bracket_expr        { $arrayShape.add($bracket_expr.result); })* '=' expr
-                               { $result = factory.createAssignment($IDENT.getText(), $arrayShape, $expr.result,
-                                               $IDENT.getStartIndex(), $expr.result.getStopIndex()); }
+assignment_expr returns [FStatementNode result]:
+    IDENT assignment_access_modifiers '=' expr
+                               { $result = factory.createAssignment($IDENT.getText(), $assignment_access_modifiers.result,
+                                                                    $expr.result, $IDENT.getStartIndex(), $expr.result.getStopIndex()); }
+    ;
+
+assignment_access_modifiers returns [List<Object> result]:
+                               { $result = new ArrayList<>(); }
+    (bracket_expr              { $result.add($bracket_expr.result); } |
+     '.' IDENT                 { $result.add($IDENT.getText());     } )*
     ;
 
 expr returns [FExpressionNode result]:
@@ -264,7 +269,7 @@ type_access[FExpressionNode lhs] returns [FExpressionNode result]:
                                         $lhs.getStartIndex(), $bracket_expr.result.getStopIndex()); }
       type_access[$lhs]        { $result = $type_access.result; } |
     '.' IDENT                  { $lhs = factory.createMemberAccess($lhs, $IDENT.getText(), $lhs.getStartIndex(), $IDENT.getStopIndex()); }
-      type_access[lhs]         { $result = $type_access.result; } |
+      type_access[$lhs]        { $result = $type_access.result; } |
     /* epsilon */              { $result = $lhs; }
     ;
 

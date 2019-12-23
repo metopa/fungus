@@ -8,6 +8,7 @@ import cz.metopa.fungus.FException;
 import cz.metopa.fungus.nodes.FExpressionNode;
 import cz.metopa.fungus.runtime.FArray;
 import cz.metopa.fungus.runtime.FNull;
+import cz.metopa.fungus.runtime.FObject;
 import cz.metopa.fungus.runtime.FVec3;
 
 @NodeInfo(shortName = "typename")
@@ -46,6 +47,11 @@ abstract public class FTypeNameBuiltin extends FBuiltinNode {
     @Specialization
     public String vecType(FVec3 arg) {
         return "vec3";
+    }
+
+    @Specialization
+    public String objType(FObject arg) {
+        return arg.getTypeName();
     }
 
     @Fallback
