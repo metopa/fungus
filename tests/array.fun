@@ -17,4 +17,9 @@ func main() {
         assert(typename(a[i]) == "int");
         assert(a[i] == -i);
     }
+    var b[3];
+    for (i = 0; i < len(b); i = i + 1) {
+        b[i] = i * 2;
+    }
+    assert(string(b) == "[0, 2, 4]");
 }

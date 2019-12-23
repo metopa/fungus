@@ -4,6 +4,9 @@ import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import cz.metopa.fungus.FException;
+import cz.metopa.fungus.runtime.FArray;
+import cz.metopa.fungus.runtime.FIndexable;
+import cz.metopa.fungus.runtime.FObject;
 
 @NodeInfo(shortName = "string conversion")
 abstract public class FStringConversionNode extends FTypeConversionNode {
@@ -23,8 +26,18 @@ abstract public class FStringConversionNode extends FTypeConversionNode {
     }
 
     @Specialization
-    public Object fromString(String s) {
+    public String fromString(String s) {
         return s;
+    }
+
+    @Specialization
+    public String fromArray(FIndexable array) {
+        return array.toString();
+    }
+
+    @Specialization
+    public String fromObject(FObject object) {
+        return object.toString();
     }
 
     @Fallback

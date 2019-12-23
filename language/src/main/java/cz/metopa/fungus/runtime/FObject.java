@@ -5,6 +5,7 @@ import cz.metopa.fungus.FException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class FObject implements TruffleObject {
     private String typeName;
@@ -41,11 +42,11 @@ public class FObject implements TruffleObject {
         StringBuilder sb = new StringBuilder();
         sb.append(typeName).append("{");
 
-        fields.forEach((n, v) -> { sb.append(n).append("=").append(v).append(", "); });
-        if (!fields.isEmpty()) {
-            sb.deleteCharAt(sb.length() - 1);
-            sb.deleteCharAt(sb.length() - 1);
-        }
+        sb.append(fields.keySet()
+                      .stream()
+                      .sorted()
+                      .map(s -> s + "=" + fields.get(s).toString())
+                      .collect(Collectors.joining(", ")));
         sb.append("}");
         return sb.toString();
     }
