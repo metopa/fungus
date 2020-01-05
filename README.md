@@ -6,9 +6,9 @@
 - [x] Transfer node system
 - [x] @operator support
 - [x] Support arrays
-- [ ] Support vectors
+- [x] Support vectors
 - [x] Support short circuit operators
-- [ ] Support objects
+- [x] Support objects
 - [x] Support binary operators
 - [x] Support unary operators
 - [x] Support control flow nodes

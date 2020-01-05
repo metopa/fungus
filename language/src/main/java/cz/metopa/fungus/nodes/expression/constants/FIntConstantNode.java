@@ -11,7 +11,13 @@ public final class FIntConstantNode extends FExpressionNode {
 
     public FIntConstantNode(int value) { this.value = value; }
 
-    public FIntConstantNode(String str) { this.value = Integer.parseInt(str); }
+    public FIntConstantNode(String str) {
+        if (str.startsWith("0x")) {
+            this.value = Integer.parseInt(str.substring(2), 16);
+        } else {
+            this.value = Integer.parseInt(str);
+        }
+    }
 
     @Override
     public Integer executeGeneric(VirtualFrame frame) {
