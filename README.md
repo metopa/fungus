@@ -80,6 +80,7 @@
   - `now`
   - `type`
   - `assert`
+  - `substr`
   - Type conversions
     - `bool`
     - `int`

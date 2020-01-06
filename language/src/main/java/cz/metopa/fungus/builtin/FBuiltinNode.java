@@ -92,6 +92,19 @@ abstract public class FBuiltinNode extends FExpressionNode {
             checkArgCount(1, "len", args);
             return FLenBuiltinNodeGen.create(args.get(0));
         });
+
+        factory.registerBuiltin("substr", args -> {
+            switch (args.size()) {
+                case 2:
+                    return FSubstr2BuiltinNodeGen.create(args.get(0), args.get(1));
+                case 3:
+                    return FSubstr3BuiltinNodeGen.create(args.get(0), args.get(1), args.get(2));
+                default:
+                    throw FException.parsingError(
+                            String.format("substr expects 2 or 3 arguments, %d provided", args.size()));
+            }
+
+        });
     }
 
     private static void checkArgCount(int expected, String name, List<FExpressionNode> args) {

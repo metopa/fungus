@@ -16,7 +16,7 @@ import cz.metopa.fungus.runtime.FIndexable;
 abstract public class FArrayWriteNode extends FStatementNode {
     @Specialization
     protected void handleIndexable(FIndexable array, int index, Object value) {
-        index = FIndexable.adjustIndex(index, array.size(), this);
+        index = FIndexable.adjustIndex(index, array.size(), false, this);
         array.set(index, value);
     }
 

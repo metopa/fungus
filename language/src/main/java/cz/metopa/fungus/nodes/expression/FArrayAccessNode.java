@@ -14,13 +14,13 @@ import cz.metopa.fungus.runtime.FIndexable;
 abstract public class FArrayAccessNode extends FExpressionNode {
     @Specialization
     protected Object handleIndexable(FIndexable array, int index) {
-        index = FIndexable.adjustIndex(index, array.size(), this);
+        index = FIndexable.adjustIndex(index, array.size(), false, this);
         return array.get(index);
     }
 
     @Specialization
     protected String handleString(String str, int index) {
-        index = FIndexable.adjustIndex(index, str.length(), this);
+        index = FIndexable.adjustIndex(index, str.length(), false, this);
         return str.substring(index, index + 1);
     }
 
