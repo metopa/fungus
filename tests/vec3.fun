@@ -1,5 +1,13 @@
 func main() {
     var a = vec3(1, 2, 3);
+    assert(len(a) == 3);
+    assert(a[0] == 1);
+    assert(a[1] == 2);
+    assert(a[2] == 3);
+    assert(a.x == 1);
+    assert(a.y == 2);
+    assert(a.z == 3);
+
     var b = vec3(10);
     assert(b == vec3(10, 10, 10));
     assert(a + b == vec3(11, 12, 13));
