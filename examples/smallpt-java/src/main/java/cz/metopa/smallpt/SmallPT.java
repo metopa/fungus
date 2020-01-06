@@ -76,7 +76,7 @@ public final class SmallPT {
             this.reflectionType = reflectionType;
         }
 
-        // returns distance, 0 if nohit
+        // returns distance, 0 if no hit
         public double intersect(Ray r) {
             // Solve t^2*d.d + 2*t*(o-p).d + (o-p).(o-p)-R^2 = 0
             Vec op = position.sub(r.origin);
@@ -127,7 +127,7 @@ public final class SmallPT {
             new Sphere(16.5, new Vec(73, 16.5, 78), new Vec(), new Vec(.999, .999, .999),
                     ReflectionType.REFRACTION), // Glass
             new Sphere(600, new Vec(50, 681.6 - .27, 81.6), new Vec(12, 12, 12), new Vec(),
-                    ReflectionType.DIFF) // Lite
+                    ReflectionType.DIFF) // Light
     };
     // clang-format on
 
@@ -248,7 +248,7 @@ public final class SmallPT {
         SmallPT renderer = new SmallPT();
         renderer.render(w, h, samplesPerPixel, canvas);
 
-        try (PrintStream out = new PrintStream(new FileOutputStream("image.ppm"))) {
+        try (PrintStream out = new PrintStream(new FileOutputStream("java_image.ppm"))) {
             out.printf("P3\n%d %d\n%d\n", w, h, 255);
             for (int i = 0; i < w * h; i++) {
                 out.printf("%d %d %d ", gammaAdjustedRgb(canvas[i].x),
@@ -268,19 +268,19 @@ public final class SmallPT {
         Vec cx = new Vec(w * .5135 / h, 0, 0);
         Vec cy = cx.cross(cam.dir).norm().mult(.5135);
         long startTime = System.nanoTime();
-        long startSinceLastLog = startTime;
-        long samplesSinceLastLog = 0;
+        // long startSinceLastLog = startTime;
+        // long samplesSinceLastLog = 0;
         for (int y = 0; y < h; y++) {
             // Loop over image rows
             System.out.printf("\rRendering (%d spp) %5.2f%%", samplesPerPixel * 4,
                               100. * y / (h - 1));
-            if ((y + 1) % (5000 / samplesPerPixel) == 0) {
+            /*if ((y + 1) % (5000 / samplesPerPixel) == 0) {
                 long currentTime = System.nanoTime();
                 System.out.printf(" [%s]\n", samplesThroughput(samplesSinceLastLog,
                                                                currentTime - startSinceLastLog));
                 startSinceLastLog = currentTime;
                 samplesSinceLastLog = 0;
-            }
+            }*/
 
             for (int x = 0; x < w; x++) {
                 // Loop cols
@@ -308,7 +308,7 @@ public final class SmallPT {
                             canvas[i].add(new Vec(clamp(r.x), clamp(r.y), clamp(r.z)).mult(.25));
                     }
             }
-            samplesSinceLastLog += (long)w * samplesPerPixel * 4;
+            // samplesSinceLastLog += (long)w * samplesPerPixel * 4;
         }
 
         long duration = System.nanoTime() - startTime;
