@@ -12,6 +12,7 @@ import cz.metopa.fungus.runtime.FVec3;
 @NodeChild("rhs")
 @NodeInfo(shortName = "power")
 public abstract class FPowNode extends FExpressionNode {
+
     @Specialization()
     protected float floatPow(float lhs, float rhs) {
         return (float)Math.pow(lhs, rhs);

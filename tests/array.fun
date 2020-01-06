@@ -22,4 +22,5 @@ func main() {
         b[i] = i * 2;
     }
     assert(string(b) == "[0, 2, 4]");
+    assert(generate()[3] == -3);
 }

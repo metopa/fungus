@@ -22,7 +22,7 @@ public abstract class FUnaryPlusNode extends FExpressionNode {
     }
 
     @Specialization
-    protected FVec3 minusVector(FVec3 rhs) {
+    protected FVec3 plusVector(FVec3 rhs) {
         return rhs;
     }
 

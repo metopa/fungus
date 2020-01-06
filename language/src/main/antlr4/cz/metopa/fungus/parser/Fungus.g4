@@ -243,7 +243,8 @@ expr returns [FExpressionNode result]:
 value returns [FExpressionNode result]
 locals [FExpressionNode readOp]:
     IDENT '(' func_call_arguments e=')'
-                               { $result = factory.createCall($IDENT.getText(), $func_call_arguments.result, $IDENT.getStartIndex(), $e.getStopIndex()); } |
+                               { $readOp = factory.createCall($IDENT.getText(), $func_call_arguments.result, $IDENT.getStartIndex(), $e.getStopIndex()); }
+    type_access[$readOp]       { $result = $type_access.result;                                } |
     IDENT                      { $readOp = factory.createRead($IDENT.getText(), $IDENT.getStartIndex(), $IDENT.getStopIndex()); }
       type_access[$readOp]     { $result = $type_access.result;                                } |
     STRING_LITERAL             { $result = factory.createStringLiteral($STRING_LITERAL, true); } |

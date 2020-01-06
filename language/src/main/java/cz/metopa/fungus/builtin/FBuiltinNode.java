@@ -69,11 +69,16 @@ abstract public class FBuiltinNode extends FExpressionNode {
         });
 
         factory.registerBuiltin("vec3", args -> {
-            if (args.size() == 1) {
-                return FVec3SingularConversionNodeGen.create(args.get(0));
-            } else {
-                checkArgCount(3, "vec3", args);
-                return FVec3ConversionNodeGen.create(args.get(0), args.get(1), args.get(2));
+            switch (args.size()) {
+                case 0:
+                    return new FVec3ZeroInitNode();
+                case 1:
+                    return FVec3SingularConversionNodeGen.create(args.get(0));
+                case 3:
+                    return FVec3ConversionNodeGen.create(args.get(0), args.get(1), args.get(2));
+                default:
+                    throw FException.parsingError(String.format(
+                        "vec3 expects 0, 1 or 3 arguments, %d provided", args.size()));
             }
         });
 
@@ -82,6 +87,7 @@ abstract public class FBuiltinNode extends FExpressionNode {
             checkArgCount(2, "max", args);
             return FMaxBuiltinNodeGen.create(args.get(0), args.get(1));
         });
+
         factory.registerBuiltin("min", args -> {
             checkArgCount(2, "min", args);
             return FMinBuiltinNodeGen.create(args.get(0), args.get(1));
@@ -90,6 +96,21 @@ abstract public class FBuiltinNode extends FExpressionNode {
         factory.registerBuiltin("sqrt", args -> {
             checkArgCount(1, "sqrt", args);
             return FSqrtBuiltinNodeGen.create(args.get(0));
+        });
+
+        factory.registerBuiltin("sin", args -> {
+            checkArgCount(1, "sin", args);
+            return FSinBuiltinNodeGen.create(args.get(0));
+        });
+
+        factory.registerBuiltin("cos", args -> {
+            checkArgCount(1, "cos", args);
+            return FCosBuiltinNodeGen.create(args.get(0));
+        });
+
+        factory.registerBuiltin("abs", args -> {
+            checkArgCount(1, "abs", args);
+            return FAbsBuiltinNodeGen.create(args.get(0));
         });
 
         factory.registerBuiltin("rand", args -> {
