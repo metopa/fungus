@@ -13,3 +13,4 @@ graalvm/
 /Coco.jar
 component/fungus-component.jar
 language/dependency-reduced-pom.xml
+*.ppm

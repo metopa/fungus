@@ -11,4 +11,6 @@ public final class FNull implements TruffleObject {
     public String toString() {
         return "NULL";
     }
+
+    public static Object escapeNull(Object object) { return object == null ? SINGLETON : object; }
 }

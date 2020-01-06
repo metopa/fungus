@@ -5,6 +5,7 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import cz.metopa.fungus.FException;
 import cz.metopa.fungus.runtime.FArray;
+import cz.metopa.fungus.runtime.FFile;
 import cz.metopa.fungus.runtime.FIndexable;
 import cz.metopa.fungus.runtime.FObject;
 
@@ -37,6 +38,11 @@ abstract public class FStringConversionNode extends FTypeConversionNode {
 
     @Specialization
     public String fromObject(FObject object) {
+        return object.toString();
+    }
+
+    @Specialization
+    public String fromFile(FFile object) {
         return object.toString();
     }
 

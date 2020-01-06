@@ -6,10 +6,7 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import cz.metopa.fungus.FException;
 import cz.metopa.fungus.nodes.FExpressionNode;
-import cz.metopa.fungus.runtime.FArray;
-import cz.metopa.fungus.runtime.FNull;
-import cz.metopa.fungus.runtime.FObject;
-import cz.metopa.fungus.runtime.FVec3;
+import cz.metopa.fungus.runtime.*;
 
 @NodeInfo(shortName = "typename")
 @NodeChild(value = "arg", type = FExpressionNode.class)
@@ -52,6 +49,11 @@ abstract public class FTypeNameBuiltin extends FBuiltinNode {
     @Specialization
     public String objType(FObject arg) {
         return arg.getTypeName();
+    }
+
+    @Specialization
+    public String fileType(FFile arg) {
+        return "file";
     }
 
     @Fallback

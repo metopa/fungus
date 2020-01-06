@@ -14,8 +14,7 @@ public class FReadBuiltin extends FBuiltinNode {
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         try {
-            String res = reader.readLine();
-            return res != null ? res : FNull.SINGLETON;
+            return FNull.escapeNull(reader.readLine());
         } catch (IOException e) {
             return FNull.SINGLETON;
         }

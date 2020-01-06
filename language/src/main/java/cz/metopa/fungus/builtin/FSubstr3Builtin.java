@@ -15,9 +15,14 @@ import cz.metopa.fungus.runtime.FIndexable;
 abstract public class FSubstr3Builtin extends FBuiltinNode {
     @Specialization
     public String substr(String s, int beginIndex, int endIndex) {
-        //if (beginIndex)
         beginIndex = FIndexable.adjustIndex(beginIndex, s.length(), true, this);
         endIndex = FIndexable.adjustIndex(endIndex, s.length(), true, this);
+        if (beginIndex > endIndex) {
+            throw FException.runtimeError(
+                String.format("substr: begin index(%d) is larger than end index(%d)", beginIndex,
+                              endIndex),
+                this);
+        }
         return s.substring(beginIndex, endIndex);
     }
 

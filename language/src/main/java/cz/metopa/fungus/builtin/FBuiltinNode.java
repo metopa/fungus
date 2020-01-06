@@ -27,8 +27,27 @@ abstract public class FBuiltinNode extends FExpressionNode {
                                       args.subList(1, args.size()).toArray(new FExpressionNode[0]));
         });
         factory.registerBuiltin("read", args -> {
-            checkArgCount(0, "read", args);
-            return new FReadBuiltin();
+            switch (args.size()) {
+            case 0:
+                return new FReadBuiltin();
+            case 1:
+                return FReadFileBuiltinNodeGen.create(args.get(0));
+            default:
+                throw FException.parsingError(
+                    String.format("read expects 0 or 1 arguments, %d provided", args.size()));
+            }
+        });
+        factory.registerBuiltin("write", args -> {
+            checkArgCountAtLeast(2, "write", args);
+            return FWriteFileBuiltinNodeGen.create(args.get(0), args.get(1));
+        });
+        factory.registerBuiltin("open", args -> {
+            checkArgCountAtLeast(2, "write", args);
+            return FOpenFileBuiltinNodeGen.create(args.get(0), args.get(1));
+        });
+        factory.registerBuiltin("close", args -> {
+            checkArgCountAtLeast(1, "write", args);
+            return FCloseFileBuiltinNodeGen.create(args.get(0));
         });
 
         // =========== Type conversion builtins ===========
@@ -95,15 +114,14 @@ abstract public class FBuiltinNode extends FExpressionNode {
 
         factory.registerBuiltin("substr", args -> {
             switch (args.size()) {
-                case 2:
-                    return FSubstr2BuiltinNodeGen.create(args.get(0), args.get(1));
-                case 3:
-                    return FSubstr3BuiltinNodeGen.create(args.get(0), args.get(1), args.get(2));
-                default:
-                    throw FException.parsingError(
-                            String.format("substr expects 2 or 3 arguments, %d provided", args.size()));
+            case 2:
+                return FSubstr2BuiltinNodeGen.create(args.get(0), args.get(1));
+            case 3:
+                return FSubstr3BuiltinNodeGen.create(args.get(0), args.get(1), args.get(2));
+            default:
+                throw FException.parsingError(
+                    String.format("substr expects 2 or 3 arguments, %d provided", args.size()));
             }
-
         });
     }
 
